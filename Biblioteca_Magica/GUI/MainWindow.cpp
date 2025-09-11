@@ -4,7 +4,7 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
-//#include "../csv/LectorCSV.h"
+#include "../csv/LectorCSV.h"
 //#include "../include/Recorridos.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -51,8 +51,8 @@ void MainWindow::onCargarArchivo() {
 
     std::string rutaArchivo = ruta.toStdString();
 
-   // LectorCSV lector(rutaArchivo, arbol);
-    //lector.procesarArchivo();
+   LectorCSV lector(rutaArchivo);
+    lector.procesarArchivo();
 
     QMessageBox::information(this, "Exito", "Archivo cargado y procesado correctamente, ");
     //prueba de lectura

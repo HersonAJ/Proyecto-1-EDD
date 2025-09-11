@@ -15,7 +15,9 @@ find_package(Qt5 COMPONENTS
 
 add_executable(Biblioteca_Magica main.cpp
         GUI/MainWindow.h
-        GUI/MainWindow.cpp)
+        GUI/MainWindow.cpp
+        csv/LectorCSV.h
+        csv/LectorCSV.cpp)
 target_link_libraries(Biblioteca_Magica
         Qt5::Core
         Qt5::Gui
