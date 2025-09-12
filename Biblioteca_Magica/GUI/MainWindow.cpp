@@ -5,7 +5,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include "../csv/LectorCSV.h"
-//#include "../include/Recorridos.h"
+#include "../include/Recorridos.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -56,6 +56,6 @@ void MainWindow::onCargarArchivo() {
 
     QMessageBox::information(this, "Exito", "Archivo cargado y procesado correctamente, ");
     //prueba de lectura
-   // std::cout << "\n Recorrido inOrden del arbol AVL: \n" ;
-   // Recorridos<NodoAVL>::inOrden(arbol.getRaiz());
+    std::cout << "\n Recorrido inOrden del arbol AVL: \n" ;
+    Recorridos<NodoAVL>::inOrden(arbol.getRaiz());
 }
