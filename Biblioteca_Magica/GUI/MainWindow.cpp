@@ -4,23 +4,43 @@
 #include <QAction>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QVBoxLayout>
+#include <QWidget>
 #include "../csv/LectorCSV.h"
-#include "../include/Recorridos.h"
+#include <QTextCursor>
+#include <QTextCharFormat>
+#include <QColor>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     setWindowTitle("Biblioteca Mágica");
-    resize(800, 600);
+    resize(1000, 700);
+
+    // Widget central con layout vertical
+    QWidget *central = new QWidget(this);
+    QVBoxLayout *layout = new QVBoxLayout(central);
+
+    // Crear menú
     createMenu();
+
+    // Crear panel de log
+    logWidget = new QPlainTextEdit(this);
+    logWidget->setReadOnly(true);
+    logWidget->setPlaceholderText("Aquí se mostrarán los mensajes del sistema...");
+    layout->addWidget(logWidget);
+
+    central->setLayout(layout);
+    setCentralWidget(central);
 }
 
 void MainWindow::createMenu() {
     QMenuBar *menuBar = new QMenuBar(this);
 
+    // ===== Menú Archivo =====
     QMenu *menuArchivo = new QMenu("Archivo", this);
 
-    QAction *actionCargar = new QAction("Cargar archivo", this);
+    QAction *actionCargar = new QAction("Cargar archivo CSV", this);
     connect(actionCargar, &QAction::triggered, this, &MainWindow::onCargarArchivo);
     menuArchivo->addAction(actionCargar);
 
@@ -28,8 +48,70 @@ void MainWindow::createMenu() {
     connect(actionExportar, &QAction::triggered, this, &MainWindow::onExportarAVL);
     menuArchivo->addAction(actionExportar);
 
+    menuArchivo->addSeparator();
+
+    QAction *actionSalir = new QAction("Salir", this);
+    connect(actionSalir, &QAction::triggered, this, &QMainWindow::close);
+    menuArchivo->addAction(actionSalir);
+
+    // ===== Menú Libros =====
+    QMenu *menuLibros = new QMenu("Libros", this);
+
+    QAction *actionAgregar = new QAction("Agregar libro", this);
+    menuLibros->addAction(actionAgregar);
+
+    QAction *actionEliminar = new QAction("Eliminar libro", this);
+    menuLibros->addAction(actionEliminar);
+
+    QMenu *menuBuscar = new QMenu("Buscar libro", this);
+    menuBuscar->addAction("Por título");
+    menuBuscar->addAction("Por ISBN");
+    menuBuscar->addAction("Por género");
+    menuBuscar->addAction("Por rango de fechas");
+    menuLibros->addMenu(menuBuscar);
+
+    // ===== Menú Visualización =====
+    QMenu *menuVisualizacion = new QMenu("Visualización", this);
+    menuVisualizacion->addAction("Ver AVL");
+    menuVisualizacion->addAction("Ver Árbol B");
+    menuVisualizacion->addAction("Ver Árbol B+");
+    menuVisualizacion->addSeparator();
+    menuVisualizacion->addAction("Comparar rendimiento");
+
+    // ===== Menú Herramientas =====
+    QMenu *menuHerramientas = new QMenu("Herramientas", this);
+    menuHerramientas->addAction("Mostrar estadísticas");
+    menuHerramientas->addAction("Mostrar log");
+
+    // ===== Menú Ayuda =====
+    QMenu *menuAyuda = new QMenu("Ayuda", this);
+    menuAyuda->addAction("Acerca de");
+
+    // Agregar menús a la barra
     menuBar->addMenu(menuArchivo);
+    menuBar->addMenu(menuLibros);
+    menuBar->addMenu(menuVisualizacion);
+    menuBar->addMenu(menuHerramientas);
+    menuBar->addMenu(menuAyuda);
+
     setMenuBar(menuBar);
+}
+
+void MainWindow::appendLog(const std::string &mensaje, const QString &tipo) {
+    QTextCharFormat formato;
+    if (tipo == "ok") {
+        formato.setForeground(QBrush(QColor("green")));
+    } else if (tipo == "error") {
+        formato.setForeground(QBrush(QColor("red")));
+    } else {
+        formato.setForeground(QBrush(QColor("black")));
+    }
+
+    QTextCursor cursor = logWidget->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    cursor.insertText(QString::fromStdString(mensaje) + "\n", formato);
+    logWidget->setTextCursor(cursor);
+    logWidget->ensureCursorVisible();
 }
 
 void MainWindow::onCargarArchivo() {
@@ -43,13 +125,22 @@ void MainWindow::onCargarArchivo() {
 
     std::string rutaArchivo = ruta.toStdString();
 
+    appendLog("Cargando archivo: " + rutaArchivo, "info");
+
     LectorCSV lector(rutaArchivo, arbol);
+    lector.setLogger([this](const std::string &msg) {
+        // Detectar si es error o no
+        if (msg.rfind("Error", 0) == 0) { // empieza con "Error"
+            appendLog(msg, "error");
+        } else {
+            appendLog(msg, "ok");
+        }
+    });
+
     lector.procesarArchivo();
 
+    appendLog("Archivo procesado correctamente.");
     QMessageBox::information(this, "Éxito", "Archivo cargado y procesado correctamente.");
-
-    std::cout << "\nRecorrido inOrden del árbol AVL:\n";
-    Recorridos<NodoAVL>::inOrden(arbol.getRaiz());
 }
 
 void MainWindow::onExportarAVL() {
@@ -69,8 +160,10 @@ void MainWindow::onExportarAVL() {
     int resultado = system(comando.c_str());
 
     if (resultado == 0) {
+        appendLog("Imagen exportada: " + ruta.toStdString(), "Ok");
         QMessageBox::information(this, "Éxito", "Árbol exportado correctamente.");
     } else {
+        appendLog("Error al generar la imagen.", "error");
         QMessageBox::warning(this, "Error", "No se pudo generar la imagen. Verifica que Graphviz esté instalado.");
     }
 }

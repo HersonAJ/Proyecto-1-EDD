@@ -75,10 +75,11 @@ LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino) : rutaArch
 void LectorCSV::procesarArchivo() {
     std::ifstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
+        log("Error: no se pudo abrir el archivo: " + rutaArchivo);
         std::cerr << "Error: No se pudo abrir el archivo: " << rutaArchivo << std::endl;
         return;
     }
-
+    log("Iniciando la lectura del archivo....");
     std::string linea;
     int numLinea = 0;
 
@@ -88,6 +89,8 @@ void LectorCSV::procesarArchivo() {
         if (linea.empty()) continue;
 
         if (!tiene5Campos(linea, ',')) {
+            log("Error en línea " + std::to_string(numLinea) + ": número incorrecto de campos. Se esperaban 5.");
+            log("Contenido: " + linea);
             std::cerr << "Error en línea " << numLinea << ": número incorrecto de campos. Se esperaban 5." << std::endl;
             std::cerr << "Contenido: " << linea << std::endl;
             continue;
@@ -106,8 +109,11 @@ void LectorCSV::procesarArchivo() {
             !tieneComillasValidas(isbn)   ||
             !tieneComillasValidas(genero) ||
             !tieneComillasValidas(fecha)  ||
-            !tieneComillasValidas(autor))
-        {
+            !tieneComillasValidas(autor)) {
+
+            log("Error en línea " + std::to_string(numLinea) + ": formato inválido, faltan comillas o campo vacío.");
+            log("Contenido: " + linea);
+
             std::cerr << "Error en línea " << numLinea << ": formato inválido, faltan comillas o campo vacío." << std::endl;
             std::cerr << "Contenido: " << linea << std::endl;
             continue;
@@ -123,9 +129,11 @@ void LectorCSV::procesarArchivo() {
         Libro libro (titulo,isbn,genero,fecha,autor);
         arbol.insertar(libro);
 
+        log("Línea " + std::to_string(numLinea) + " válida: " + titulo + ", " + isbn + ", " + genero + ", " + fecha + ", " + autor);
         // Aquí iría la creación del Libro y su inserción en el árbol
         std::cout << "Línea " << numLinea << " válida: " << titulo << ", " << isbn << ", " << genero << ", " << fecha << ", " << autor << std::endl;
     }
 
     archivo.close();
+    log("Lectura finalizada");
 }

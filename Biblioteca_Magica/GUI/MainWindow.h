@@ -1,7 +1,10 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QLabel>
 #include <QMainWindow>
+#include <QPlainTextEdit>
+
 #include "../AVL/ArbolAVL.h"
 
 class MainWindow : public QMainWindow {
@@ -16,7 +19,9 @@ private slots:
 
 private:
     void createMenu();
+    QPlainTextEdit *logWidget;
    ArbolAVL arbol;
+    void appendLog(const std::string &mensaje, const QString &tipo = "info");
 };
 
 #endif // MAINWINDOW_H
