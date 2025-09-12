@@ -2,6 +2,7 @@
 #include <QMenuBar>
 #include <QMenu>
 #include <QAction>
+#include <QApplication>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QVBoxLayout>
@@ -10,6 +11,8 @@
 #include <QTextCursor>
 #include <QTextCharFormat>
 #include <QColor>
+#include <QInputDialog>
+#include <QLineEdit>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -64,7 +67,9 @@ void MainWindow::createMenu() {
     menuLibros->addAction(actionEliminar);
 
     QMenu *menuBuscar = new QMenu("Buscar libro", this);
-    menuBuscar->addAction("Por título");
+    QAction *actionBuscarTitulo = new QAction("Por título", this);
+    connect(actionBuscarTitulo, &QAction::triggered, this, &MainWindow::onBuscarPorTitulo);
+    menuBuscar->addAction(actionBuscarTitulo);
     menuBuscar->addAction("Por ISBN");
     menuBuscar->addAction("Por género");
     menuBuscar->addAction("Por rango de fechas");
@@ -165,5 +170,30 @@ void MainWindow::onExportarAVL() {
     } else {
         appendLog("Error al generar la imagen.", "error");
         QMessageBox::warning(this, "Error", "No se pudo generar la imagen. Verifica que Graphviz esté instalado.");
+    }
+}
+
+void MainWindow::onBuscarPorTitulo() {
+    if (arbol.estaVacio()) {
+        appendLog("El árbol está vacío. Cargue datos antes de buscar.", "error");
+        return;
+    }
+
+    bool ok;
+    QString titulo = QInputDialog::getText(this, "Buscar por título",
+                                           "Título del libro:", QLineEdit::Normal,
+                                           "", &ok);
+    if (!ok || titulo.isEmpty()) return;
+
+    Libro libroBuscado(titulo.toStdString(), "", "", "", "");
+    NodoAVL* encontrado = arbol.buscar(libroBuscado, arbol.getRaiz());
+
+    if (encontrado) {
+        appendLog("Libro encontrado: " + encontrado->dato.toString(), "ok");
+        QMessageBox::information(this, "Resultado",
+            QString::fromStdString(encontrado->dato.toString()));
+    } else {
+        appendLog("No se encontró el libro con título: " + titulo.toStdString(), "error");
+        QMessageBox::warning(this, "Sin resultados", "No se encontró el libro.");
     }
 }
