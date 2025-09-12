@@ -3,8 +3,6 @@
 #include <fstream>
 #include <sstream>
 
-LectorCSV::LectorCSV(const std::string& ruta) : rutaArchivo(ruta) {}
-
 int LectorCSV::contarCampos(const std::string& linea, char delim) {
     int count = 0;
     std::stringstream ss(linea);
@@ -19,6 +17,59 @@ bool LectorCSV::tiene5Campos(const std::string& linea, char delim) {
     return contarCampos(linea, delim) == 5;
 }
 
+bool LectorCSV::tieneComillasValidas(const std::string& campoOriginal) {
+    // Copia para manipular
+    std::string campo = campoOriginal;
+
+    // Quitar espacios iniciales y finales
+    size_t start = campo.find_first_not_of(" \t\r\n");
+    size_t end   = campo.find_last_not_of(" \t\r\n");
+    if (start == std::string::npos) return false; // todo vacío
+    campo = campo.substr(start, end - start + 1);
+
+    // validar comillas
+    if (campo.size() < 2) return false;
+    if (campo.front() != '"' || campo.back() != '"') return false;
+
+    // Contenido interno
+    std::string interno = campo.substr(1, campo.size() - 2);
+    // Quitar espacios internos
+    start = interno.find_first_not_of(" \t\r\n");
+    end   = interno.find_last_not_of(" \t\r\n");
+    if (start == std::string::npos) return false; // vacío dentro
+    interno = interno.substr(start, end - start + 1);
+
+    return !interno.empty();
+}
+
+
+std::string LectorCSV::limpiarCampo(const std::string& campoOriginal) {
+    std::string campo = campoOriginal;
+
+    // Quitar espacios iniciales y finales
+    size_t start = campo.find_first_not_of(" \t\r\n");
+    size_t end   = campo.find_last_not_of(" \t\r\n");
+    if (start == std::string::npos) return "";
+    campo = campo.substr(start, end - start + 1);
+
+    // Quitar comillas si están al inicio y final
+    if (campo.size() >= 2 && campo.front() == '"' && campo.back() == '"') {
+        campo = campo.substr(1, campo.size() - 2);
+    }
+
+    // Quitar espacios otra vez
+    start = campo.find_first_not_of(" \t\r\n");
+    end   = campo.find_last_not_of(" \t\r\n");
+    if (start == std::string::npos) return "";
+    campo = campo.substr(start, end - start + 1);
+
+    return campo;
+}
+
+//Constructor
+LectorCSV::LectorCSV(const std::string& ruta) : rutaArchivo(ruta) {}
+
+
 void LectorCSV::procesarArchivo() {
     std::ifstream archivo(rutaArchivo);
     if (!archivo.is_open()) {
@@ -32,7 +83,6 @@ void LectorCSV::procesarArchivo() {
     while (std::getline(archivo, linea)) {
         numLinea++;
 
-        // Saltar líneas vacías
         if (linea.empty()) continue;
 
         if (!tiene5Campos(linea, ',')) {
@@ -49,12 +99,27 @@ void LectorCSV::procesarArchivo() {
         std::getline(ss, fecha, ',');
         std::getline(ss, autor, ',');
 
-        //crear el libro e insertar en el arbol
+        //Validar comillas antes de limpiar
+        if (!tieneComillasValidas(titulo) ||
+            !tieneComillasValidas(isbn)   ||
+            !tieneComillasValidas(genero) ||
+            !tieneComillasValidas(fecha)  ||
+            !tieneComillasValidas(autor))
+        {
+            std::cerr << "Error en línea " << numLinea << ": formato inválido, faltan comillas o campo vacío." << std::endl;
+            std::cerr << "Contenido: " << linea << std::endl;
+            continue;
+        }
 
+        // Limpiar campos
+        titulo = limpiarCampo(titulo);
+        isbn   = limpiarCampo(isbn);
+        genero = limpiarCampo(genero);
+        fecha  = limpiarCampo(fecha);
+        autor  = limpiarCampo(autor);
 
-        // Si llegamos aquí, la línea es válida
-        std::cout << "Línea " << numLinea << " válida: " << linea << std::endl;
-
+        // Aquí iría la creación del Libro y su inserción en el árbol
+        std::cout << "Línea " << numLinea << " válida: " << titulo << ", " << isbn << ", " << genero << ", " << fecha << ", " << autor << std::endl;
     }
 
     archivo.close();

@@ -8,7 +8,8 @@ private:
     std::string rutaArchivo;
     int contarCampos(const std::string& linea, char delim);
     bool tiene5Campos(const std::string& linea, char delim);
-
+    static std::string limpiarCampo(const std::string& campo);
+    static bool tieneComillasValidas(const std::string& campo);
 public:
     LectorCSV(const std::string& ruta);
     void procesarArchivo();
