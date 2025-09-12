@@ -1,4 +1,5 @@
 #include "ArbolAVL.h"
+#include "../include/ExportadorDOT.h"
 
 ArbolAVL::ArbolAVL()
     : raiz(nullptr) {
@@ -16,4 +17,7 @@ void ArbolAVL::destruir(NodoAVL* nodo) {
     destruir(nodo->izquierdo);
     destruir(nodo->derecho);
     delete nodo;
+}
+void ArbolAVL::guardarComoDOT(const std::string& ruta) const {
+    ExportadorDOT<NodoAVL>::exportar(raiz, ruta);
 }

@@ -19,6 +19,7 @@ public:
     ~ArbolAVL();
 
     void insertar(const Libro& libro);
+    void guardarComoDOT(const std::string& ruta) const;
 
     NodoAVL* getRaiz() const {
         return raiz;

@@ -10,52 +10,67 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    // Configuración básica de la ventana
     setWindowTitle("Biblioteca Mágica");
     resize(800, 600);
-
-    // Crear el menú
     createMenu();
 }
 
 void MainWindow::createMenu() {
-    // Crear barra de menú
     QMenuBar *menuBar = new QMenuBar(this);
 
-    // Crear menú "Archivo"
     QMenu *menuArchivo = new QMenu("Archivo", this);
 
-    // Acción "Cargar archivo"
     QAction *actionCargar = new QAction("Cargar archivo", this);
-
-    connect(actionCargar, &QAction::triggered, this,&MainWindow::onCargarArchivo);
-
+    connect(actionCargar, &QAction::triggered, this, &MainWindow::onCargarArchivo);
     menuArchivo->addAction(actionCargar);
-    // Agregar el menú a la barra
+
+    QAction *actionExportar = new QAction("Exportar AVL como imagen", this);
+    connect(actionExportar, &QAction::triggered, this, &MainWindow::onExportarAVL);
+    menuArchivo->addAction(actionExportar);
+
     menuBar->addMenu(menuArchivo);
-    // Establecer la barra de menú en la ventana
     setMenuBar(menuBar);
 }
 
 void MainWindow::onCargarArchivo() {
-
     QString ruta = QFileDialog::getOpenFileName(
         this,
         "Seleccionar archivo CSV",
         "",
         "Archivo CSV (*.csv);;Todos los archivos(*)");
 
-    if (ruta.isEmpty()) {
-        return;
-    }
+    if (ruta.isEmpty()) return;
 
     std::string rutaArchivo = ruta.toStdString();
 
-   LectorCSV lector(rutaArchivo, arbol);
+    LectorCSV lector(rutaArchivo, arbol);
     lector.procesarArchivo();
 
-    QMessageBox::information(this, "Exito", "Archivo cargado y procesado correctamente, ");
-    //prueba de lectura
-    std::cout << "\n Recorrido inOrden del arbol AVL: \n" ;
+    QMessageBox::information(this, "Éxito", "Archivo cargado y procesado correctamente.");
+
+    std::cout << "\nRecorrido inOrden del árbol AVL:\n";
     Recorridos<NodoAVL>::inOrden(arbol.getRaiz());
+}
+
+void MainWindow::onExportarAVL() {
+    QString ruta = QFileDialog::getSaveFileName(
+        this,
+        "Guardar imagen del árbol",
+        "",
+        "Imagen PNG (*.png)"
+    );
+
+    if (ruta.isEmpty()) return;
+
+    std::string dotFile = "arbol.dot";
+    arbol.guardarComoDOT(dotFile);
+
+    std::string comando = "dot -Tpng " + dotFile + " -o \"" + ruta.toStdString() + "\"";
+    int resultado = system(comando.c_str());
+
+    if (resultado == 0) {
+        QMessageBox::information(this, "Éxito", "Árbol exportado correctamente.");
+    } else {
+        QMessageBox::warning(this, "Error", "No se pudo generar la imagen. Verifica que Graphviz esté instalado.");
+    }
 }
