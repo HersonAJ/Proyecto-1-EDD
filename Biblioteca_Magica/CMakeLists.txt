@@ -17,7 +17,9 @@ add_executable(Biblioteca_Magica main.cpp
         GUI/MainWindow.h
         GUI/MainWindow.cpp
         csv/LectorCSV.h
-        csv/LectorCSV.cpp)
+        csv/LectorCSV.cpp
+        Modelos/Libro.h
+        Modelos/Libro.cpp)
 target_link_libraries(Biblioteca_Magica
         Qt5::Core
         Qt5::Gui
