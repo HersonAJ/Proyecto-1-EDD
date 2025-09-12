@@ -51,7 +51,7 @@ void MainWindow::onCargarArchivo() {
 
     std::string rutaArchivo = ruta.toStdString();
 
-   LectorCSV lector(rutaArchivo);
+   LectorCSV lector(rutaArchivo, arbol);
     lector.procesarArchivo();
 
     QMessageBox::information(this, "Exito", "Archivo cargado y procesado correctamente, ");

@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-//#include "../include/AVL/ArbolAVL.h"
+#include "../AVL/ArbolAVL.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -15,7 +15,7 @@ private slots:
 
 private:
     void createMenu();
-   // ArbolAVL arbol;
+   ArbolAVL arbol;
 };
 
 #endif // MAINWINDOW_H

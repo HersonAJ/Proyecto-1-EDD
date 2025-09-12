@@ -2,6 +2,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "../Modelos/Libro.h"
+#include "../AVL/ArbolAVL.h"
 
 int LectorCSV::contarCampos(const std::string& linea, char delim) {
     int count = 0;
@@ -67,7 +69,7 @@ std::string LectorCSV::limpiarCampo(const std::string& campoOriginal) {
 }
 
 //Constructor
-LectorCSV::LectorCSV(const std::string& ruta) : rutaArchivo(ruta) {}
+LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino) : rutaArchivo(ruta), arbol(arbolDestino) {}
 
 
 void LectorCSV::procesarArchivo() {
@@ -117,6 +119,9 @@ void LectorCSV::procesarArchivo() {
         genero = limpiarCampo(genero);
         fecha  = limpiarCampo(fecha);
         autor  = limpiarCampo(autor);
+
+        Libro libro (titulo,isbn,genero,fecha,autor);
+        arbol.insertar(libro);
 
         // Aquí iría la creación del Libro y su inserción en el árbol
         std::cout << "Línea " << numLinea << " válida: " << titulo << ", " << isbn << ", " << genero << ", " << fecha << ", " << autor << std::endl;

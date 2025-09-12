@@ -19,7 +19,12 @@ add_executable(Biblioteca_Magica main.cpp
         csv/LectorCSV.h
         csv/LectorCSV.cpp
         Modelos/Libro.h
-        Modelos/Libro.cpp)
+        Modelos/Libro.cpp
+        AVL/NodoAVL.h
+        AVL/ArbolAVL.h
+        AVL/AVL_Calculo.cpp
+        AVL/AVL_Insertar.cpp
+        AVL/ArbolAVL.cpp)
 target_link_libraries(Biblioteca_Magica
         Qt5::Core
         Qt5::Gui
