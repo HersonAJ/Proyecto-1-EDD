@@ -27,7 +27,9 @@ add_executable(Biblioteca_Magica main.cpp
         AVL/ArbolAVL.cpp
         include/Recorridos.h
         include/ExportadorDOT.h
-        AVL/BuscarAVL.cpp)
+        AVL/BuscarAVL.cpp
+        AVL/EliminacionAVL.h
+        AVL/EliminacionAVL.cpp)
 target_link_libraries(Biblioteca_Magica
         Qt5::Core
         Qt5::Gui

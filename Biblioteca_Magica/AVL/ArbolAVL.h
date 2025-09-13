@@ -28,6 +28,8 @@ public:
     bool estaVacio() const { return  raiz == nullptr;}
 
     NodoAVL* buscar(const Libro& libro, NodoAVL* nodo);
+    void setRaiz(NodoAVL* nuevaRaiz) { raiz = nuevaRaiz; }
+    void eliminar(const Libro& libro);
 };
 
 #endif //PROYECTO1QT_ARBOLAVL_H

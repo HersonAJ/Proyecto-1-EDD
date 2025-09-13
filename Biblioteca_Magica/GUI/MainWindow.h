@@ -17,6 +17,7 @@ private slots:
     void onCargarArchivo();
     void onExportarAVL();
     void onBuscarPorTitulo();
+    void onEliminarLibro();
 
 private:
     void createMenu();

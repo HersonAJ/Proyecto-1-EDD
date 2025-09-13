@@ -13,6 +13,7 @@
 #include <QColor>
 #include <QInputDialog>
 #include <QLineEdit>
+#include "../AVL/EliminacionAVL.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -64,6 +65,7 @@ void MainWindow::createMenu() {
     menuLibros->addAction(actionAgregar);
 
     QAction *actionEliminar = new QAction("Eliminar libro", this);
+    connect(actionEliminar, &QAction::triggered, this, &MainWindow::onEliminarLibro);
     menuLibros->addAction(actionEliminar);
 
     QMenu *menuBuscar = new QMenu("Buscar libro", this);
@@ -196,4 +198,32 @@ void MainWindow::onBuscarPorTitulo() {
         appendLog("No se encontró el libro con título: " + titulo.toStdString(), "error");
         QMessageBox::warning(this, "Sin resultados", "No se encontró el libro.");
     }
+}
+
+void MainWindow::onEliminarLibro() {
+    if (arbol.estaVacio()) {
+        appendLog("El árbol está vacío. No hay libros para eliminar.", "error");
+        return;
+    }
+
+    bool ok;
+    QString titulo = QInputDialog::getText(this, "Eliminar libro",
+                                           "Título del libro a eliminar:", QLineEdit::Normal,
+                                           "", &ok);
+    if (!ok || titulo.isEmpty()) return;
+
+    Libro libroAEliminar(titulo.toStdString(), "", "", "", "");
+
+    NodoAVL* encontrado = arbol.buscar(libroAEliminar, arbol.getRaiz());
+    if (!encontrado) {
+        appendLog("No se encontró el libro con título: " + titulo.toStdString(), "error");
+        QMessageBox::warning(this, "Sin resultados", "No se encontró el libro.");
+        return;
+    }
+
+    // 🔹 Usar la versión recursiva que actualiza la raíz
+    EliminacionAVL::eliminar(arbol, libroAEliminar);
+
+    appendLog("Libro eliminado: " + titulo.toStdString(), "ok");
+    QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");
 }
