@@ -1,4 +1,5 @@
 #include "EliminacionAVL.h"
+#include "ArbolAVL.h"
 
 void EliminacionAVL::eliminar(ArbolAVL& arbol, const Libro& libro) {
     arbol.setRaiz(eliminarNodo(arbol.getRaiz(), libro, arbol));
@@ -36,7 +37,10 @@ NodoAVL* EliminacionAVL::eliminarNodo(NodoAVL* nodo, const Libro& libro, ArbolAV
             nodo->derecho = eliminarNodo(nodo->derecho, sucesor->dato, arbol);
         }
     }
-    return nodo;
+
+    //actualizar la altura y balancear antes de devolver
+    nodo->altura = 1 + std::max(arbol.altura(nodo->izquierdo), arbol.altura(nodo->derecho));
+    return arbol.balancear(nodo);
 }
 
 NodoAVL* EliminacionAVL::nodoMinimo(NodoAVL* nodo) {

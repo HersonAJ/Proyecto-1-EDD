@@ -4,6 +4,8 @@
 #include "NodoAVL.h"
 
 class ArbolAVL {
+
+    friend class EliminacionAVL;
 private:
     NodoAVL* raiz;
 
@@ -13,6 +15,15 @@ private:
 
     NodoAVL* insertarNodo(NodoAVL* nodo, const Libro& libro);
     void destruir(NodoAVL* nodo);
+
+    //rotaciones
+    NodoAVL* rotarIzquierda(NodoAVL* nodo);
+    NodoAVL* rotarDerecha(NodoAVL* nodo);
+    NodoAVL* rotacionDobleIzquierda(NodoAVL* nodo);
+    NodoAVL* rotacionDobleDerecha(NodoAVL* nodo);
+
+    //balanceo
+    NodoAVL* balancear(NodoAVL* nodo);
 
 public:
     ArbolAVL();

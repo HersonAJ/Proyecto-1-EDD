@@ -1,9 +1,13 @@
+#include <iostream>
+#include <ostream>
+
 #include "ArbolAVL.h"
 
 //insertar al arbol de forma simple
 NodoAVL* ArbolAVL::insertarNodo(NodoAVL* nodo, const Libro& libro) {
     //validando que este vacio
     if (nodo == nullptr) {
+        std::cout << "Insertando nuevo nodo: " << libro.getTitulo() << std::endl;
         return  new NodoAVL(libro);
     }
 
@@ -19,7 +23,8 @@ NodoAVL* ArbolAVL::insertarNodo(NodoAVL* nodo, const Libro& libro) {
     //actualizar la altura del arbol
     nodo->altura = 1 + std::max(altura(nodo->izquierdo), altura(nodo->derecho));
 
-    return nodo;
+    std::cout << "Balanceado nodo: " << nodo->dato.getTitulo() << std::endl;
+    return balancear(nodo);
 }
 
 void ArbolAVL::insertar(const Libro& libro) {
