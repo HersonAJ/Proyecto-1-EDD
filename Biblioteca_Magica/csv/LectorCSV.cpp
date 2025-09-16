@@ -137,9 +137,13 @@ void LectorCSV::procesarArchivo() {
 
         log("Línea " + std::to_string(numLinea) + " válida: " + titulo + ", " + isbn + ", " + genero + ", " + fecha + ", " + autor);
         // Aquí iría la creación del Libro y su inserción en el árbol
-        std::cout << "Línea " << numLinea << " válida: " << titulo << ", " << isbn << ", " << genero << ", " << fecha << ", " << autor << std::endl;
+        //std::cout << "Línea " << numLinea << " válida: " << titulo << ", " << isbn << ", " << genero << ", " << fecha << ", " << autor << std::endl;
+        std::cout << "\n === Recorrido del Arbol AVL por título === \n";
+        Recorridos<NodoAVL>::inOrden(arbol.getRaiz());
+
         std::cout << "\n === Recorrido del Arbol B por fecha === \n";
         RecorridosB::inOrden(arbolB.getRaiz());
+
     }
 
     archivo.close();

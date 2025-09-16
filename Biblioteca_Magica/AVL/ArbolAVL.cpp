@@ -37,7 +37,7 @@ int ArbolAVL::factorBalance(NodoAVL *nodo) const {
 //rotacion simple a la izquierda
 NodoAVL *ArbolAVL::rotarIzquierda(NodoAVL *nodo) {
     if (!nodo || !nodo->derecho) {
-        std::cerr << "Error: notarIzquierda con nodo o hijo derecho nulo " << std::endl;
+        std::cerr << "Error: rotarIzquierda requiere hijo derecho no nulo " << std::endl;
         return nodo;
     }
     NodoAVL* nuevaRaiz = nodo->derecho;
@@ -57,7 +57,7 @@ NodoAVL *ArbolAVL::rotarIzquierda(NodoAVL *nodo) {
 NodoAVL *ArbolAVL::rotarDerecha(NodoAVL *nodo) {
 
     if (!nodo || !nodo->izquierdo) {
-        std::cerr << "Error: notarDerecha con nodo o hijo derecho nulo " << std::endl;
+        std::cerr << "Error: rotarDerecha requiere hijo izquierdo no nulo " << std::endl;
         return nodo;
     }
 
@@ -69,7 +69,7 @@ NodoAVL *ArbolAVL::rotarDerecha(NodoAVL *nodo) {
 
     //actualizar la nueva altura
     nodo->altura = std::max(altura(nodo->izquierdo), altura(nodo->derecho)) + 1;
-    nuevaRaiz->altura = std::max(altura(nuevaRaiz->izquierdo), altura(nodo->derecho)) + 1;
+    nuevaRaiz->altura = std::max(altura(nuevaRaiz->izquierdo), altura(nuevaRaiz->derecho)) + 1;
 
     return nuevaRaiz;
 }
@@ -77,7 +77,7 @@ NodoAVL *ArbolAVL::rotarDerecha(NodoAVL *nodo) {
 //rotacion doble a la izquierda (derecha + izquierda)
 NodoAVL *ArbolAVL::rotacionDobleIzquierda(NodoAVL *nodo) {
     nodo->derecho = rotarDerecha(nodo->derecho);
-    return  rotarDerecha(nodo);
+    return  rotarIzquierda(nodo);
 }
 
 //rotacion doble a la derecha (izquierda + derehca)
