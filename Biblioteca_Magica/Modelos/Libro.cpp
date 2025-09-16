@@ -63,3 +63,14 @@ int Libro::compararPorTitulo(const Libro& otro) const {
 int Libro::compararPorIsbn(const Libro& otro) const {
     return isbn.compare(otro.isbn);
 }
+
+int Libro::compararPorFecha(const Libro& otro) const {
+    try {
+        int anio1 =fecha.empty() ? 0 : std::stoi(fecha);
+        int anio2 =otro.fecha.empty() ? 0 : std::stoi(otro.fecha);
+        return anio1 - anio2;
+    } catch (const std::invalid_argument&) {
+        return  fecha.compare(otro.fecha);
+    }
+}
+

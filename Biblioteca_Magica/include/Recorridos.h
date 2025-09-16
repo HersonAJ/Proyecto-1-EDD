@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "../ArbolB/NodoB.h"
+
 // Clase de recorridos genéricos para árboles binarios
 template <typename Nodo>
 class Recorridos {
@@ -29,6 +31,31 @@ public:
         postOrden(nodo->izquierdo);
         postOrden(nodo->derecho);
         std::cout << nodo->dato.toString() << "\n";
+    }
+};
+
+//recorrido para el arbolB prueba
+class RecorridosB {
+public:
+    static void inOrden(NodoB* nodo) {
+        if (!nodo) return;
+
+        int i;
+        for (i = 0; i < nodo->numClaves; i++) {
+            if (!nodo->estHoja) {
+                inOrden(nodo->hijos[i]);
+            }
+
+            //imprimir la clase
+            if (nodo->claves[i] != nullptr) {
+                std::cout << nodo->claves[i]->toString() << "\n";
+            }
+        }
+
+        //recorrer el ultimo hijo
+        if (!nodo->estHoja) {
+            inOrden(nodo->hijos[i]);
+        }
     }
 };
 

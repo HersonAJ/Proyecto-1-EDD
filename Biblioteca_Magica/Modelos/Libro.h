@@ -34,6 +34,7 @@ public:
     //comparaciones para organizar los nodos
     int compararPorTitulo(const Libro& libro) const;
     int compararPorIsbn(const Libro& libro) const;
+    int compararPorFecha(const Libro& libro) const;
 };
 
 #endif //BIBLIOTECA_MAGICA_LIBRO_H

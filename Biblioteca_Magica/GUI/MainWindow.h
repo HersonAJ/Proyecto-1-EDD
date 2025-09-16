@@ -5,6 +5,7 @@
 #include <QMainWindow>
 #include <QPlainTextEdit>
 
+#include "../ArbolB/ArbolB.h"
 #include "../AVL/ArbolAVL.h"
 
 class MainWindow : public QMainWindow {
@@ -23,6 +24,7 @@ private:
     void createMenu();
     QPlainTextEdit *logWidget;
    ArbolAVL arbol;
+    ArbolB arbolB;
     void appendLog(const std::string &mensaje, const QString &tipo = "info");
 };
 

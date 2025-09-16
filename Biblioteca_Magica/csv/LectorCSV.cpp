@@ -4,6 +4,7 @@
 #include <sstream>
 #include "../Modelos/Libro.h"
 #include "../AVL/ArbolAVL.h"
+#include "../include/Recorridos.h"
 
 int LectorCSV::contarCampos(const std::string& linea, char delim) {
     int count = 0;
@@ -69,7 +70,7 @@ std::string LectorCSV::limpiarCampo(const std::string& campoOriginal) {
 }
 
 //Constructor
-LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino) : rutaArchivo(ruta), arbol(arbolDestino) {}
+LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB) : rutaArchivo(ruta), arbol(arbolDestino), arbolB(arbolB) {}
 
 
 void LectorCSV::procesarArchivo() {
@@ -126,12 +127,19 @@ void LectorCSV::procesarArchivo() {
         fecha  = limpiarCampo(fecha);
         autor  = limpiarCampo(autor);
 
-        Libro libro (titulo,isbn,genero,fecha,autor);
-        arbol.insertar(libro);
+        /*Libro libro (titulo,isbn,genero,fecha,autor);
+        arbol.insertar(libro);*/
+
+        Libro* libro = new Libro(titulo, isbn, genero, fecha, autor);
+        arbol.insertar(*libro);
+        arbolB.insertar(libro);
+
 
         log("Línea " + std::to_string(numLinea) + " válida: " + titulo + ", " + isbn + ", " + genero + ", " + fecha + ", " + autor);
         // Aquí iría la creación del Libro y su inserción en el árbol
         std::cout << "Línea " << numLinea << " válida: " << titulo << ", " << isbn << ", " << genero << ", " << fecha << ", " << autor << std::endl;
+        std::cout << "\n === Recorrido del Arbol B por fecha === \n";
+        RecorridosB::inOrden(arbolB.getRaiz());
     }
 
     archivo.close();
