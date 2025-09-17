@@ -14,6 +14,7 @@
 #include <QInputDialog>
 #include <QLineEdit>
 #include "../AVL/EliminacionAVL.h"
+#include "../include/ExportadorDotB.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -51,6 +52,10 @@ void MainWindow::createMenu() {
     QAction *actionExportar = new QAction("Exportar AVL como imagen", this);
     connect(actionExportar, &QAction::triggered, this, &MainWindow::onExportarAVL);
     menuArchivo->addAction(actionExportar);
+
+    QAction *actionExportarB = new QAction("Exportar B", this);
+    connect(actionExportarB, &QAction::triggered, this, &MainWindow::onExportarB);
+    menuArchivo->addAction(actionExportarB);
 
     menuArchivo->addSeparator();
 
@@ -226,4 +231,33 @@ void MainWindow::onEliminarLibro() {
 
     appendLog("Libro eliminado: " + titulo.toStdString(), "ok");
     QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");
+}
+
+void MainWindow::onExportarB() {
+    QString ruta = QFileDialog::getSaveFileName(
+        this,
+        "Guardar imagen del Árbol B",
+        "",
+        "Imagen PNG (*.png)"
+    );
+
+    if (ruta.isEmpty()) return;
+
+    std::string dotFile = "arbolB.dot";
+    if (!ExportarDotB::generarArchivo(arbolB, dotFile)) {
+        appendLog("Error al generar archivo DOT del Árbol B.", "error");
+        QMessageBox::warning(this, "Error", "No se pudo generar el archivo DOT.");
+        return;
+    }
+
+    std::string comando = "dot -Tpng " + dotFile + " -o \"" + ruta.toStdString() + "\"";
+    int resultado = system(comando.c_str());
+
+    if (resultado == 0) {
+        appendLog("Imagen del Árbol B exportada: " + ruta.toStdString(), "ok");
+        QMessageBox::information(this, "Éxito", "Árbol B exportado correctamente.");
+    } else {
+        appendLog("Error al generar la imagen del Árbol B.", "error");
+        QMessageBox::warning(this, "Error", "No se pudo generar la imagen. Verifica que Graphviz esté instalado.");
+    }
 }

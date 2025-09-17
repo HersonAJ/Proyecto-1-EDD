@@ -34,7 +34,7 @@ void ArbolB::insertar(Libro *libro) {
 void ArbolB::insertarNoLleno(NodoB *nodo, Libro *libro) {
     int i = nodo->numClaves -1;
 
-    if (nodo->estHoja) {
+    if (nodo->esHoja) {
         //mover clase hacia la derecha hasta encontrar la posicion correcta
         while ( i >= 0 && libro->compararPorFecha(*nodo->claves[i]) < 0) {
             nodo->claves[i + 1] = nodo->claves[i];
@@ -63,7 +63,7 @@ void ArbolB::insertarNoLleno(NodoB *nodo, Libro *libro) {
 
 //dividir un hijo lleno en dos nodos
 void ArbolB::dividirHijo(NodoB *padre, int i, NodoB *hijo) {
-    NodoB* nuevo = new NodoB(hijo->estHoja);
+    NodoB* nuevo = new NodoB(hijo->esHoja);
     nuevo->numClaves = T - 1;
 
     //copiar las ultimas T -1 claves al nuevo nodo
@@ -72,7 +72,7 @@ void ArbolB::dividirHijo(NodoB *padre, int i, NodoB *hijo) {
     }
 
     //copiar los hijos si no es hoja
-    if (!hijo->estHoja) {
+    if (!hijo->esHoja) {
         for (int j = 0; j < T; j++) {
             nuevo->hijos[j] = hijo->hijos[j + T];
         }

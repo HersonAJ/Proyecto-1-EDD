@@ -42,7 +42,7 @@ public:
 
         int i;
         for (i = 0; i < nodo->numClaves; i++) {
-            if (!nodo->estHoja) {
+            if (!nodo->esHoja) {
                 inOrden(nodo->hijos[i]);
             }
 
@@ -53,7 +53,7 @@ public:
         }
 
         //recorrer el ultimo hijo
-        if (!nodo->estHoja) {
+        if (!nodo->esHoja) {
             inOrden(nodo->hijos[i]);
         }
     }

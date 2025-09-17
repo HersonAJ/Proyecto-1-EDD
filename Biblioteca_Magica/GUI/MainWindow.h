@@ -17,6 +17,7 @@ public:
 private slots:
     void onCargarArchivo();
     void onExportarAVL();
+    void onExportarB();
     void onBuscarPorTitulo();
     void onEliminarLibro();
 
