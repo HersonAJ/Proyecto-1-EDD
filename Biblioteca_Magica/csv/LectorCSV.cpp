@@ -6,28 +6,38 @@
 #include "../AVL/ArbolAVL.h"
 #include "../include/Recorridos.h"
 
-int LectorCSV::contarCampos(const std::string& linea, char delim) {
-    int count = 0;
-    std::stringstream ss(linea);
-    std::string token;
-    while (std::getline(ss, token, delim)) {
-        count++;
+std::string* parseCSVLine(const std::string& linea, int& cantidad) {
+    std::string* campos = new std::string[10];
+    cantidad = 0;
+    std::string campo;
+    bool dentroComillas = false;
+
+    for (size_t i = 0; i <linea.size(); i++) {
+        char c = linea[i];
+
+        if (c == '"') {
+            dentroComillas = !dentroComillas;
+            campo.push_back(c);
+        } else if (c == ',' && !dentroComillas) {
+            campos[cantidad++] = campo;
+            campo.clear();
+        } else {
+            campo.push_back(c);
+        }
     }
-    return count;
+
+    campos[cantidad++] = campo;
+    return campos;
 }
 
-bool LectorCSV::tiene5Campos(const std::string& linea, char delim) {
-    return contarCampos(linea, delim) == 5;
-}
 
 bool LectorCSV::tieneComillasValidas(const std::string& campoOriginal) {
-    // Copia para manipular
     std::string campo = campoOriginal;
 
     // Quitar espacios iniciales y finales
     size_t start = campo.find_first_not_of(" \t\r\n");
     size_t end   = campo.find_last_not_of(" \t\r\n");
-    if (start == std::string::npos) return false; // todo vacío
+    if (start == std::string::npos) return false;
     campo = campo.substr(start, end - start + 1);
 
     // validar comillas
@@ -36,15 +46,13 @@ bool LectorCSV::tieneComillasValidas(const std::string& campoOriginal) {
 
     // Contenido interno
     std::string interno = campo.substr(1, campo.size() - 2);
-    // Quitar espacios internos
     start = interno.find_first_not_of(" \t\r\n");
     end   = interno.find_last_not_of(" \t\r\n");
-    if (start == std::string::npos) return false; // vacío dentro
+    if (start == std::string::npos) return false;
     interno = interno.substr(start, end - start + 1);
 
     return !interno.empty();
 }
-
 
 std::string LectorCSV::limpiarCampo(const std::string& campoOriginal) {
     std::string campo = campoOriginal;
@@ -69,8 +77,9 @@ std::string LectorCSV::limpiarCampo(const std::string& campoOriginal) {
     return campo;
 }
 
-//Constructor
-LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB) : rutaArchivo(ruta), arbol(arbolDestino), arbolB(arbolB) {}
+// Constructor
+LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB)
+    : rutaArchivo(ruta), arbol(arbolDestino), arbolB(arbolB) {}
 
 
 void LectorCSV::procesarArchivo() {
@@ -81,6 +90,7 @@ void LectorCSV::procesarArchivo() {
         return;
     }
     log("Iniciando la lectura del archivo....");
+
     std::string linea;
     int numLinea = 0;
 
@@ -89,7 +99,10 @@ void LectorCSV::procesarArchivo() {
 
         if (linea.empty()) continue;
 
-        if (!tiene5Campos(linea, ',')) {
+        int cantidad = 0;
+        std::string* campos = parseCSVLine(linea, cantidad);
+
+        if (cantidad != 5) {
             log("Error en línea " + std::to_string(numLinea) + ": número incorrecto de campos. Se esperaban 5.");
             log("Contenido: " + linea);
             std::cerr << "Error en línea " << numLinea << ": número incorrecto de campos. Se esperaban 5." << std::endl;
@@ -97,15 +110,13 @@ void LectorCSV::procesarArchivo() {
             continue;
         }
 
-        std::stringstream ss(linea);
-        std::string titulo, isbn, genero, fecha, autor;
-        std::getline(ss, titulo, ',');
-        std::getline(ss, isbn, ',');
-        std::getline(ss, genero, ',');
-        std::getline(ss, fecha, ',');
-        std::getline(ss, autor, ',');
+        std::string titulo = campos[0];
+        std::string isbn   = campos[1];
+        std::string genero = campos[2];
+        std::string fecha  = campos[3];
+        std::string autor  = campos[4];
 
-        //Validar comillas antes de limpiar
+        // Validar comillas antes de limpiar
         if (!tieneComillasValidas(titulo) ||
             !tieneComillasValidas(isbn)   ||
             !tieneComillasValidas(genero) ||
@@ -127,23 +138,13 @@ void LectorCSV::procesarArchivo() {
         fecha  = limpiarCampo(fecha);
         autor  = limpiarCampo(autor);
 
-        /*Libro libro (titulo,isbn,genero,fecha,autor);
-        arbol.insertar(libro);*/
-
+        // Crear libro y guardar en ambos árboles
         Libro* libro = new Libro(titulo, isbn, genero, fecha, autor);
         arbol.insertar(*libro);
         arbolB.insertar(libro);
 
 
         log("Línea " + std::to_string(numLinea) + " válida: " + titulo + ", " + isbn + ", " + genero + ", " + fecha + ", " + autor);
-        // Aquí iría la creación del Libro y su inserción en el árbol
-        //std::cout << "Línea " << numLinea << " válida: " << titulo << ", " << isbn << ", " << genero << ", " << fecha << ", " << autor << std::endl;
-        std::cout << "\n === Recorrido del Arbol AVL por título === \n";
-        Recorridos<NodoAVL>::inOrden(arbol.getRaiz());
-
-        std::cout << "\n === Recorrido del Arbol B por fecha === \n";
-        RecorridosB::inOrden(arbolB.getRaiz());
-
     }
 
     archivo.close();
