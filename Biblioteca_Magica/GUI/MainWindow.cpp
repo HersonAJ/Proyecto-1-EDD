@@ -76,10 +76,13 @@ void MainWindow::createMenu() {
     QMenu *menuBuscar = new QMenu("Buscar libro", this);
     QAction *actionBuscarTitulo = new QAction("Por título", this);
     connect(actionBuscarTitulo, &QAction::triggered, this, &MainWindow::onBuscarPorTitulo);
+
+    QAction* actionBuscarFecha = new QAction("Por año de publicacion rango", this);
+    connect(actionBuscarFecha, &QAction::triggered, this, &MainWindow::onBuscarPorFecha);
+    menuBuscar->addAction(actionBuscarFecha);
     menuBuscar->addAction(actionBuscarTitulo);
     menuBuscar->addAction("Por ISBN");
     menuBuscar->addAction("Por género");
-    menuBuscar->addAction("Por rango de fechas");
     menuLibros->addMenu(menuBuscar);
 
     // ===== Menú Visualización =====
@@ -226,7 +229,7 @@ void MainWindow::onEliminarLibro() {
         return;
     }
 
-    // 🔹 Usar la versión recursiva que actualiza la raíz
+    // Usar la versión recursiva que actualiza la raíz
     EliminacionAVL::eliminar(arbol, libroAEliminar);
 
     appendLog("Libro eliminado: " + titulo.toStdString(), "ok");
@@ -259,5 +262,53 @@ void MainWindow::onExportarB() {
     } else {
         appendLog("Error al generar la imagen del Árbol B.", "error");
         QMessageBox::warning(this, "Error", "No se pudo generar la imagen. Verifica que Graphviz esté instalado.");
+    }
+}
+
+void MainWindow::onBuscarPorFecha() {
+    if (!arbolB.getRaiz()) {
+        appendLog("El arbol B esta vacio. Cargue datos antes de buscar.", "error");
+        return;
+    }
+
+    //dialogo para el año inicial
+    bool ok1;
+    int inicio = QInputDialog::getInt(this, "Rango de fechas - Inicio", "Año inicial: ", 2000, 0, 3000, 1, &ok1);
+    if (!ok1) return;;
+
+    //dialogo para el año final
+    bool ok2;
+    int fin = QInputDialog::getInt(this, "Rango de fechas - Fin", "Año final: ", 2020, inicio, 3000, 1, &ok2);
+    if (!ok2) return;
+
+    //validar rango
+    if (inicio > fin) {
+        appendLog("Error: El año inicial no puede ser mayor al año final,", "error");
+        QMessageBox::warning(this, "Error", "El año inicial no puede ser mayor al año final.");
+        return;
+    }
+
+    //realizar busqueda por rango
+    ListaLibros resultados = arbolB.buscarPorRango(inicio, fin);
+
+    if (resultados.getTamaño() > 0) {
+        std::string mensaje = "Se encontraron " + std::to_string(resultados.getTamaño()) + " Libros entre " + std::to_string(inicio) + " y " +
+            std::to_string(fin) + ":\n";
+
+        //recorrer resultados
+        Nodo* actual = resultados.getCabeza();
+        while (actual != nullptr) {
+            mensaje += "- " + actual->libro->toString() + "\n";
+            actual = actual->siguiente;
+        }
+
+        appendLog(mensaje, "ok");
+
+        //Mostrar resultado en QMessageBox
+        QMessageBox::information(this, "Resultado de la busqueda ", QString::fromStdString("Encontrados: " + std::to_string(resultados.getTamaño()) +
+            "libros\nUse el log para ver detalles"));
+    } else {
+        appendLog("No se encontraron libros entre " + std::to_string(inicio) + " y " + std::to_string(fin), "error");
+        QMessageBox::information(this, "Sin resultados", "No se encontraron libros en ese rango de fechas.");
     }
 }

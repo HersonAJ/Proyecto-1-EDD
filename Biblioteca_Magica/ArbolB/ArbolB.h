@@ -2,6 +2,7 @@
 #define BIBLIOTECA_MAGICA_ARBOLB_H
 
 #include  "NodoB.h"
+#include "ListaLibros.h"
 
 class ArbolB {
 private:
@@ -10,14 +11,15 @@ private:
     //metodos internos
     void dividirHijo(NodoB* padre, int i, NodoB* hijo);
     void insertarNoLleno(NodoB* nodo, Libro* libro);
+    void buscarRangoRecursivo(NodoB* nodo, int inicio, int fin, ListaLibros& resultados);
     void recorrer(NodoB* nodo);
-    NodoB* buscar(NodoB nodo, int fecha);
+    //Libro* buscar(NodoB* nodo, int fecha);
 
 public:
     ArbolB(): raiz(nullptr) {}
 
     void insertar(Libro* libro);
-    Libro* buscar(int fecha);
+    ListaLibros buscarPorRango(int inicio, int fin);
     void imprimir();
 
     NodoB* getRaiz() const { return raiz; }
