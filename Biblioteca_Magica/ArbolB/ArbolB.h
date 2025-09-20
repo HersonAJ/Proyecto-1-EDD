@@ -14,6 +14,16 @@ private:
     void buscarRangoRecursivo(NodoB* nodo, int inicio, int fin, ListaLibros& resultados);
     void recorrer(NodoB* nodo);
     //Libro* buscar(NodoB* nodo, int fecha);
+    //metodos para la eliminacion
+    void eliminarRecursivo(NodoB* nodo, int fecha);
+    void eliminarDeHoja(NodoB* nodo, int idx);
+    void eliminarDeInterno(NodoB* nodo, int indx);
+    Libro* obtenerPredecesor(NodoB* nodo, int idx);
+    Libro* obtenerSucesor(NodoB* nodo, int idx);
+    void llenar(NodoB* nodo, int idx);
+    void prestarDeAnterior(NodoB* nodo, int idx);
+    void prestarDeSiguiente(NodoB* nodo, int idx);
+    void fusionar(NodoB* nodo, int idx);
 
 public:
     ArbolB(): raiz(nullptr) {}
@@ -23,6 +33,7 @@ public:
     void imprimir();
 
     NodoB* getRaiz() const { return raiz; }
+    void eliminar(int fecha);
 };
 
 #endif //BIBLIOTECA_MAGICA_ARBOLB_H

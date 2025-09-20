@@ -31,7 +31,7 @@ void ArbolB::insertar(Libro *libro) {
 }
 
 //metodo para insertar en un nodo que no esta lleno
-void ArbolB::insertarNoLleno(NodoB *nodo, Libro *libro) {
+void ArbolB:: insertarNoLleno(NodoB *nodo, Libro *libro) {
     int i = nodo->numClaves -1;
 
     if (nodo->esHoja) {

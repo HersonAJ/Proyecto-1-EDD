@@ -37,7 +37,8 @@ add_executable(Biblioteca_Magica main.cpp
         ArbolB/ArbolB_Buscar.cpp
         include/Nodo.h
         ArbolB/ListaLibros.h
-        ArbolB/ListaLibros.cpp)
+        ArbolB/ListaLibros.cpp
+        ArbolB/ArbolB_Eliminar.cpp)
 target_link_libraries(Biblioteca_Magica
         Qt5::Core
         Qt5::Gui
