@@ -74,3 +74,12 @@ int Libro::compararPorFecha(const Libro& otro) const {
     }
 }
 
+int Libro::getFechaInt() const {
+    try {
+        return  fecha.empty() ? 0 : std::stoi(fecha);
+    } catch (const std::invalid_argument&) {
+        return 0;
+    }
+}
+
+

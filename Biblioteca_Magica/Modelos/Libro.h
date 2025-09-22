@@ -35,6 +35,9 @@ public:
     int compararPorTitulo(const Libro& libro) const;
     int compararPorIsbn(const Libro& libro) const;
     int compararPorFecha(const Libro& libro) const;
+
+    //sobrecarga para usar la fecha como entero
+    int getFechaInt() const;
 };
 
 #endif //BIBLIOTECA_MAGICA_LIBRO_H

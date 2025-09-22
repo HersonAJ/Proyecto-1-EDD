@@ -154,6 +154,10 @@ void MainWindow::onCargarArchivo() {
 
     lector.procesarArchivo();
 
+    //debug temporal
+    appendLog("Arbol B despues de cargar el archivo.", "info");
+    debugMostrarArbolB();
+
     appendLog("Archivo procesado correctamente.");
     QMessageBox::information(this, "Éxito", "Archivo cargado y procesado correctamente.");
 }
@@ -231,6 +235,18 @@ void MainWindow::onEliminarLibro() {
 
     // Usar la versión recursiva que actualiza la raíz
     EliminacionAVL::eliminar(arbol, libroAEliminar);
+
+    //implementacion de eliminacion en el Arbol b
+    try {
+        int año = std::stoi(encontrado->dato.getFecha());
+        arbolB.eliminar(año);
+
+        //debug temporal del arbol b
+        appendLog("Arbol B despues de eliminar", "info");
+        debugMostrarArbolB();
+    } catch (const std::exception& e) {
+        appendLog("Error al interpretar la fecha del libro para eliminar en el arbol B.", "error");
+    }
 
     appendLog("Libro eliminado: " + titulo.toStdString(), "ok");
     QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");
@@ -311,4 +327,19 @@ void MainWindow::onBuscarPorFecha() {
         appendLog("No se encontraron libros entre " + std::to_string(inicio) + " y " + std::to_string(fin), "error");
         QMessageBox::information(this, "Sin resultados", "No se encontraron libros en ese rango de fechas.");
     }
+}
+
+void MainWindow::debugMostrarArbolB() {
+    std::stringstream ss;
+    ss << "contenido del arbol B inOrden;\n";
+    std::streambuf* oldCoutBuffer = std::cout.rdbuf();
+    std::cout.rdbuf(ss.rdbuf());
+
+    //RecorridosB::inOrden(arbolB.getRaiz());
+    //RecorridosB2::imprimirEstructura(arbolB.getRaiz());
+    ArbolB3::imprimir(arbolB.getRaiz());
+
+    std::cout.rdbuf(oldCoutBuffer);
+
+    appendLog(ss.str(), "debug");
 }

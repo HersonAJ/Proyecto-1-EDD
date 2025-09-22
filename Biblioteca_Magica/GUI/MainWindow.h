@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QMainWindow>
 #include <QPlainTextEdit>
+#include <sstream>
 
 #include "../ArbolB/ArbolB.h"
 #include "../AVL/ArbolAVL.h"
@@ -28,6 +29,7 @@ private:
    ArbolAVL arbol;
     ArbolB arbolB;
     void appendLog(const std::string &mensaje, const QString &tipo = "info");
+    void debugMostrarArbolB();
 };
 
 #endif // MAINWINDOW_H
