@@ -2,10 +2,9 @@
 #define PROYECTO1QT_ARBOLAVL_H
 
 #include "NodoAVL.h"
+#include <string>
 
 class ArbolAVL {
-
-    friend class EliminacionAVL;
 private:
     NodoAVL* raiz;
 
@@ -13,7 +12,10 @@ private:
     int factorBalance(NodoAVL* nodo) const;
     NodoAVL* nodoMinimo(NodoAVL* nodo) const;
 
-    NodoAVL* insertarNodo(NodoAVL* nodo, const Libro& libro);
+    NodoAVL* insertarNodo(NodoAVL* nodo, Libro* libro);
+    NodoAVL* eliminarNodo(NodoAVL* nodo, Libro* libro);
+    NodoAVL* buscarNodo(NodoAVL* nodo, const std::string& titulo, const std::string& isbn);
+
     void destruir(NodoAVL* nodo);
 
     //rotaciones
@@ -25,22 +27,24 @@ private:
     //balanceo
     NodoAVL* balancear(NodoAVL* nodo);
 
+    // Comparación por título + ISBN
+    int compararLibros(Libro* a, Libro* b) const;
+    int compararIsbn(Libro* a, Libro* b) const;
+
+
 public:
     ArbolAVL();
     ~ArbolAVL();
 
-    void insertar(const Libro& libro);
+    void insertar(Libro* libro);
+    void eliminar(Libro* libro);
+    //NodoAVL* buscar(const std::string& titulo, const std::string& isbn);
+    NodoAVL* buscar(const std::string& titulo, const std::string& isbn = "");
+
+    bool estaVacio() const { return raiz == nullptr; }
+    NodoAVL* getRaiz() const { return raiz; }
+
     void guardarComoDOT(const std::string& ruta) const;
-
-    NodoAVL* getRaiz() const {
-        return raiz;
-    }
-
-    bool estaVacio() const { return  raiz == nullptr;}
-
-    NodoAVL* buscar(const Libro& libro, NodoAVL* nodo);
-    void setRaiz(NodoAVL* nuevaRaiz) { raiz = nuevaRaiz; }
-    void eliminar(const Libro& libro);
 };
 
-#endif //PROYECTO1QT_ARBOLAVL_H
+#endif // PROYECTO1QT_ARBOLAVL_H

@@ -140,9 +140,10 @@ void LectorCSV::procesarArchivo() {
 
         // Crear libro y guardar en ambos árboles
         Libro* libro = new Libro(titulo, isbn, genero, fecha, autor);
-        arbol.insertar(*libro);
+        arbol.insertar(libro);
         arbolB.insertar(libro);
 
+        RecorridosAVL<NodoAVL>::inOrden(arbol.getRaiz());
 
         log("Línea " + std::to_string(numLinea) + " válida: " + titulo + ", " + isbn + ", " + genero + ", " + fecha + ", " + autor);
     }

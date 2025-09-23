@@ -2,6 +2,8 @@
 #include <string>
 #include  <sstream>
 
+// Constructor vacío
+Libro::Libro() : titulo(""), isbn(""), genero(""), fecha(""), autor("") {}
 //constructor con parametros
 Libro::Libro(const std::string &titulo,
     const std::string &isbn,

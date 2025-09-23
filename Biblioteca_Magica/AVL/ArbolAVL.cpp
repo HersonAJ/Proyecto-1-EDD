@@ -19,7 +19,7 @@ void ArbolAVL::destruir(NodoAVL* nodo) {
     delete nodo;
 }
 void ArbolAVL::guardarComoDOT(const std::string& ruta) const {
-    ExportadorDOT<NodoAVL>::exportar(raiz, ruta);
+   // ExportadorDOT<NodoAVL>::exportar(raiz, ruta);
 }
 
 //metodos para el balanceo

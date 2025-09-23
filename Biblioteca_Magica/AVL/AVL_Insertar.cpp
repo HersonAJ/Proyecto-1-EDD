@@ -1,32 +1,42 @@
 #include <iostream>
-#include <ostream>
-
 #include "ArbolAVL.h"
 
-//insertar al arbol de forma simple
-NodoAVL* ArbolAVL::insertarNodo(NodoAVL* nodo, const Libro& libro) {
-    //validando que este vacio
+// Comparación por título + ISBN
+int ArbolAVL::compararLibros(Libro* a, Libro* b) const {
+    int cmp = a->getTitulo().compare(b->getTitulo());
+    if (cmp == 0) {
+        return a->getIsbn().compare(b->getIsbn());
+    }
+    return cmp;
+}
+
+// Insertar nodo recursivo
+NodoAVL* ArbolAVL::insertarNodo(NodoAVL* nodo, Libro* libro) {
     if (nodo == nullptr) {
-        std::cout << "Insertando nuevo nodo: " << libro.getTitulo() << std::endl;
-        return  new NodoAVL(libro);
+        std::cout << "Insertando nuevo nodo: " << libro->getTitulo() << std::endl;
+        return new NodoAVL(libro);
     }
 
-    //primera comparacion
-    if (libro.compararPorTitulo(nodo->dato) < 0) {
+    int cmp = compararLibros(libro, nodo->libro);
+
+    if (cmp < 0) {
         nodo->izquierdo = insertarNodo(nodo->izquierdo, libro);
-    } else if (libro.compararPorTitulo(nodo->dato) > 0) {
+    } else if (cmp > 0) {
         nodo->derecho = insertarNodo(nodo->derecho, libro);
     } else {
+        std::cout << "Libro repetido, agregando a lista: " << libro->getTitulo() << std::endl;
+        nodo->agregarRepetido(libro);
         return nodo;
     }
 
-    //actualizar la altura del arbol
+    // Actualizar altura
     nodo->altura = 1 + std::max(altura(nodo->izquierdo), altura(nodo->derecho));
 
-    std::cout << "Balanceado nodo: " << nodo->dato.getTitulo() << std::endl;
+    //std::cout << "Balanceado nodo: " << nodo->libro->getTitulo() << std::endl;
     return balancear(nodo);
 }
 
-void ArbolAVL::insertar(const Libro& libro) {
+// Método público
+void ArbolAVL::insertar(Libro* libro) {
     raiz = insertarNodo(raiz, libro);
 }

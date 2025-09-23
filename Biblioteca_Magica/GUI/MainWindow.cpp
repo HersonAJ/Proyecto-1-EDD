@@ -13,7 +13,6 @@
 #include <QColor>
 #include <QInputDialog>
 #include <QLineEdit>
-#include "../AVL/EliminacionAVL.h"
 #include "../include/ExportadorDotB.h"
 
 MainWindow::MainWindow(QWidget *parent)
@@ -199,13 +198,14 @@ void MainWindow::onBuscarPorTitulo() {
                                            "", &ok);
     if (!ok || titulo.isEmpty()) return;
 
-    Libro libroBuscado(titulo.toStdString(), "", "", "", "");
-    NodoAVL* encontrado = arbol.buscar(libroBuscado, arbol.getRaiz());
+    NodoAVL* encontrado = arbol.buscar(titulo.toStdString());
 
     if (encontrado) {
-        appendLog("Libro encontrado: " + encontrado->dato.toString(), "ok");
+        appendLog("Libro encontrado: " + encontrado->libro->toString(), "ok");
         QMessageBox::information(this, "Resultado",
-            QString::fromStdString(encontrado->dato.toString()));
+            QString::fromStdString(encontrado->libro->toString()));
+
+
     } else {
         appendLog("No se encontró el libro con título: " + titulo.toStdString(), "error");
         QMessageBox::warning(this, "Sin resultados", "No se encontró el libro.");
@@ -213,7 +213,7 @@ void MainWindow::onBuscarPorTitulo() {
 }
 
 void MainWindow::onEliminarLibro() {
-    if (arbol.estaVacio()) {
+    /*if (arbol.estaVacio()) {
         appendLog("El árbol está vacío. No hay libros para eliminar.", "error");
         return;
     }
@@ -249,7 +249,7 @@ void MainWindow::onEliminarLibro() {
     }
 
     appendLog("Libro eliminado: " + titulo.toStdString(), "ok");
-    QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");
+    QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");*/
 }
 
 void MainWindow::onExportarB() {

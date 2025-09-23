@@ -22,13 +22,11 @@ add_executable(Biblioteca_Magica main.cpp
         Modelos/Libro.cpp
         AVL/NodoAVL.h
         AVL/ArbolAVL.h
-        AVL/AVL_Calculo.cpp
         AVL/AVL_Insertar.cpp
         AVL/ArbolAVL.cpp
         include/Recorridos.h
         include/ExportadorDOT.h
         AVL/BuscarAVL.cpp
-        AVL/EliminacionAVL.h
         AVL/EliminacionAVL.cpp
         ArbolB/NodoB.h
         ArbolB/ArbolB.h
@@ -38,7 +36,11 @@ add_executable(Biblioteca_Magica main.cpp
         include/Nodo.h
         ArbolB/ListaLibros.h
         ArbolB/ListaLibros.cpp
-        ArbolB/ArbolB_Eliminar.cpp)
+        ArbolB/ArbolB_Eliminar.cpp
+        include/ListaRepetidos.h
+        include/ListaRepetidos.cpp
+        Modelos/Catalogo.h
+        Modelos/Catalogo.cpp)
 target_link_libraries(Biblioteca_Magica
         Qt5::Core
         Qt5::Gui

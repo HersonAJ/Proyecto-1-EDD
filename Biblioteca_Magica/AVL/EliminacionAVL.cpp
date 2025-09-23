@@ -1,19 +1,20 @@
-#include "EliminacionAVL.h"
 #include "ArbolAVL.h"
 
-void EliminacionAVL::eliminar(ArbolAVL& arbol, const Libro& libro) {
-    arbol.setRaiz(eliminarNodo(arbol.getRaiz(), libro, arbol));
+void ArbolAVL::eliminar(Libro* libro) {
+    raiz = eliminarNodo(raiz, libro);
 }
 
-NodoAVL* EliminacionAVL::eliminarNodo(NodoAVL* nodo, const Libro& libro, ArbolAVL& arbol) {
-    if (nodo == nullptr) return nodo; // no encontrado
+NodoAVL* ArbolAVL::eliminarNodo(NodoAVL* nodo, Libro* libro) {
+    if (nodo == nullptr) return nodo;
 
-    int cmp = libro.compararPorTitulo(nodo->dato);
+    int cmp = compararLibros(libro, nodo->libro);
     if (cmp < 0) {
-        nodo->izquierdo = eliminarNodo(nodo->izquierdo, libro, arbol);
+        nodo->izquierdo = eliminarNodo(nodo->izquierdo, libro);
     } else if (cmp > 0) {
-        nodo->derecho = eliminarNodo(nodo->derecho, libro, arbol);
+        nodo->derecho = eliminarNodo(nodo->derecho, libro);
     } else {
+        // Encontrado el nodo a eliminar
+
         // Caso 1: sin hijos
         if (nodo->izquierdo == nullptr && nodo->derecho == nullptr) {
             delete nodo;
@@ -33,17 +34,17 @@ NodoAVL* EliminacionAVL::eliminarNodo(NodoAVL* nodo, const Libro& libro, ArbolAV
         // Caso 3: dos hijos
         else {
             NodoAVL* sucesor = nodoMinimo(nodo->derecho);
-            nodo->dato = sucesor->dato;
-            nodo->derecho = eliminarNodo(nodo->derecho, sucesor->dato, arbol);
+            nodo->libro = sucesor->libro;
+            nodo->derecho = eliminarNodo(nodo->derecho, sucesor->libro);
         }
     }
 
-    //actualizar la altura y balancear antes de devolver
-    nodo->altura = 1 + std::max(arbol.altura(nodo->izquierdo), arbol.altura(nodo->derecho));
-    return arbol.balancear(nodo);
+    // Actualizar altura y balancear
+    nodo->altura = 1 + std::max(altura(nodo->izquierdo), altura(nodo->derecho));
+    return balancear(nodo);
 }
 
-NodoAVL* EliminacionAVL::nodoMinimo(NodoAVL* nodo) {
+NodoAVL* ArbolAVL::nodoMinimo(NodoAVL* nodo) const {
     NodoAVL* actual = nodo;
     while (actual && actual->izquierdo != nullptr) {
         actual = actual->izquierdo;
