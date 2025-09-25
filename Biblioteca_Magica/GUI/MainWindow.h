@@ -8,6 +8,7 @@
 
 #include "../ArbolB/ArbolB.h"
 #include "../AVL/ArbolAVL.h"
+#include "Vistas/AVL/AVLViewer.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -30,6 +31,9 @@ private:
     ArbolB arbolB;
     void appendLog(const std::string &mensaje, const QString &tipo = "info");
     void debugMostrarArbolB();
+
+    QTabWidget* tabs;
+    AVLViewer* avlViewer;
 };
 
 #endif // MAINWINDOW_H

@@ -14,6 +14,9 @@
 #include <QInputDialog>
 #include <QLineEdit>
 #include "../include/ExportadorDotB.h"
+#include "Vistas/AVL/AVLViewer.h"
+#include  <QLabel>
+#include  <QTabWidget>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -32,7 +35,20 @@ MainWindow::MainWindow(QWidget *parent)
     logWidget = new QPlainTextEdit(this);
     logWidget->setReadOnly(true);
     logWidget->setPlaceholderText("Aquí se mostrarán los mensajes del sistema...");
-    layout->addWidget(logWidget);
+
+    // Crear tabs
+    tabs = new QTabWidget(this);
+    tabs->addTab(logWidget, "Log");
+
+    // Crear viewer AVL y agregarlo como pestaña
+    avlViewer = new AVLViewer(&arbol, this);
+    tabs->addTab(avlViewer, "AVL");
+
+    //espacio para visualizar los otros arboles
+
+    // Agregar tabs al layout central
+    layout->addWidget(tabs);
+
 
     central->setLayout(layout);
     setCentralWidget(central);
@@ -86,7 +102,15 @@ void MainWindow::createMenu() {
 
     // ===== Menú Visualización =====
     QMenu *menuVisualizacion = new QMenu("Visualización", this);
-    menuVisualizacion->addAction("Ver AVL");
+    //menuVisualizacion->addAction("Ver AVL");
+    QAction *actionVerAVL = new QAction("Ver AVL", this);
+    connect(actionVerAVL, &QAction::triggered, this, [this]() {
+        avlViewer->actualizarVista();            // refresca la imagen
+        tabs->setCurrentWidget(avlViewer);       // cambia a la pestaña AVL
+    });
+    menuVisualizacion->addAction(actionVerAVL);
+
+
     menuVisualizacion->addAction("Ver Árbol B");
     menuVisualizacion->addAction("Ver Árbol B+");
     menuVisualizacion->addSeparator();

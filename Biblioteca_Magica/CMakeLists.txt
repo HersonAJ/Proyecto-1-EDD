@@ -40,7 +40,9 @@ add_executable(Biblioteca_Magica main.cpp
         include/ListaRepetidos.h
         include/ListaRepetidos.cpp
         Modelos/Catalogo.h
-        Modelos/Catalogo.cpp)
+        Modelos/Catalogo.cpp
+        GUI/Vistas/AVL/AVLViewer.h
+        GUI/Vistas/AVL/AVLViewer.cpp)
 target_link_libraries(Biblioteca_Magica
         Qt5::Core
         Qt5::Gui
