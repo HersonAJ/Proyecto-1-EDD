@@ -5,6 +5,7 @@
 
 class Libro {
 private:
+    int cantidad;
     std::string titulo;
     std::string isbn;
     std::string genero;
@@ -21,6 +22,7 @@ public:
     std::string getGenero() const;
     std::string getFecha() const;
     std::string getAutor() const;
+    int getCantidad() const;
 
     //setters
     void setTitulo(const std::string& titulo);
@@ -28,6 +30,8 @@ public:
     void setGenero(const std::string& genero);
     void setFecha(const std::string& fecha);
     void setAutor(const std::string& autor);
+
+    void incrementarCantidad();
 
     std::string toString() const;
 

@@ -9,8 +9,15 @@
 
 template <typename Nodo>
 class ExportadorDOT {
+private:
+    const Nodo* raiz;
+    std::string rutaArchivo;
+
 public:
-    static void exportar(const Nodo* raiz, const std::string& rutaArchivo) {
+    ExportadorDOT(const Nodo* raiz, const std::string& rutaArchivo)
+        : raiz(raiz), rutaArchivo(rutaArchivo) {}
+
+    void exportar() const {
         std::ofstream file(rutaArchivo);
         if (!file.is_open()) {
             std::cerr << "Error: no se pudo crear el archivo DOT en " << rutaArchivo << std::endl;
@@ -18,12 +25,10 @@ public:
         }
 
         file << "digraph Arbol {\n";
-        file << "    rankdir=TB;\n"; // orientación de arriba hacia abajo
+        file << "    rankdir=TB;\n";
         file << "    node [shape=record, style=filled, fillcolor=lightyellow, fontname=\"Arial\", fontsize=10];\n";
         recorrer(raiz, file);
         file << "}\n";
-
-        file.close();
     }
 
 private:
@@ -43,13 +48,14 @@ private:
         return oss.str();
     }
 
-    // Nodo con tres secciones: izquierda | título | derecha
-    static void declararNodo(const Nodo* nodo, std::ofstream& out) {
+    void declararNodo(const Nodo* nodo, std::ofstream& out) const {
         out << "    " << nodeId(nodo)
-            << " [label=\"<L> | " << escapeLabel(nodo->dato.getTitulo()) << " | <R>\"];\n";
+            << " [label=\"<L> | "
+            << escapeLabel(nodo->libro->getTitulo())
+            << " | <R>\"];\n";
     }
 
-    static void recorrer(const Nodo* nodo, std::ofstream& out) {
+    void recorrer(const Nodo* nodo, std::ofstream& out) const {
         if (!nodo) return;
 
         declararNodo(nodo, out);

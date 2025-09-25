@@ -7,24 +7,14 @@
 class NodoAVL {
 public:
     Libro* libro; //libro principal en el nodo
-    ListaRepetidos repetidos; //lista doble enlazada para libros repetidos
     NodoAVL* izquierdo;
     NodoAVL* derecho;
     int altura;
 
     NodoAVL(Libro* libro) : libro(libro) , izquierdo(nullptr), derecho(nullptr), altura(1) {}
 
-    //metod auxiliar para agregar libro repetido a la lista
-    void agregarRepetido(Libro* libro) {
-        repetidos.insertar(libro);
-    }
-
-    bool eliminarRepetido(Libro* libro) {
-        return  repetidos.eliminar(libro);
-    }
-
     int contarEjemplares() const {
-        return 1 + repetidos.size();
+        return libro ? libro->getCantidad() : 0;
     }
 };
 

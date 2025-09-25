@@ -24,8 +24,8 @@ NodoAVL* ArbolAVL::insertarNodo(NodoAVL* nodo, Libro* libro) {
     } else if (cmp > 0) {
         nodo->derecho = insertarNodo(nodo->derecho, libro);
     } else {
-        std::cout << "Libro repetido, agregando a lista: " << libro->getTitulo() << std::endl;
-        nodo->agregarRepetido(libro);
+        std::cout << "Libro repetido, incrementando ejemplares: " << libro->getTitulo() << std::endl;
+        nodo->libro->incrementarCantidad();
         return nodo;
     }
 

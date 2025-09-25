@@ -172,6 +172,7 @@ void MainWindow::onExportarAVL() {
     if (ruta.isEmpty()) return;
 
     std::string dotFile = "arbol.dot";
+    std::remove(dotFile.c_str());
     arbol.guardarComoDOT(dotFile);
 
     std::string comando = "dot -Tpng " + dotFile + " -o \"" + ruta.toStdString() + "\"";

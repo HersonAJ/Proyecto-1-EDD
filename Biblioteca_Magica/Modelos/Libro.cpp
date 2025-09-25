@@ -3,14 +3,14 @@
 #include  <sstream>
 
 // Constructor vacío
-Libro::Libro() : titulo(""), isbn(""), genero(""), fecha(""), autor("") {}
+Libro::Libro() : titulo(""), isbn(""), genero(""), fecha(""), autor(""), cantidad(1) {}
 //constructor con parametros
 Libro::Libro(const std::string &titulo,
     const std::string &isbn,
     const std::string &genero,
     const std::string &fecha,
     const std::string &autor)
-    : titulo(titulo), isbn(isbn), genero(genero), fecha(fecha), autor(autor) {}
+    : titulo(titulo), isbn(isbn), genero(genero), fecha(fecha), autor(autor) , cantidad(1){}
 
 //getters
 std::string Libro::getTitulo() const {
@@ -30,6 +30,8 @@ std::string Libro::getAutor() const {
     return autor;
 }
 
+int Libro::getCantidad() const { return cantidad; }
+
 //setters
 void Libro::setTitulo(const std::string& titulo) {
     this->titulo = titulo;
@@ -47,13 +49,17 @@ void Libro::setAutor(const std::string& autor) {
     this->autor = autor;
 }
 
+    //contador
+void Libro::incrementarCantidad() { cantidad++; }
+
 std::string Libro::toString() const {
     std::ostringstream oss;
     oss << "Titulo: " << (titulo.empty() ? "<vacío>" : titulo)
         << " | ISBN: " << (isbn.empty() ? "<vacío>" : isbn)
         << " | Genero: " << (genero.empty() ? "<vacío>" : genero)
         << " | Fecha: " << (fecha.empty() ? "<vacío>" : fecha)
-        << " | Autor: " << (autor.empty() ? "<vacío>" : autor);
+        << " | Autor: " << (autor.empty() ? "<vacío>" : autor)
+        << " | Ejemplares: " << cantidad;
     return oss.str();
 }
 

@@ -13,31 +13,14 @@ public:
     static void inOrden(Nodo* nodo) {
         if (!nodo) return;
         inOrden(nodo->izquierdo);
-
-        // Imprimir libro base
         std::cout << nodo->libro->toString() << "\n";
-
-        // Imprimir repetidos (si existen)
-        NodoLibro* actual = nodo->repetidos.getCabeza();
-        while (actual != nullptr) {
-            std::cout << "   [Repetido] " << actual->libro->toString() << "\n";
-            actual = actual->siguiente;
-        }
-
         inOrden(nodo->derecho);
     }
 
     // Preorden: Raíz - Izquierda - Derecha
     static void preOrden(Nodo* nodo) {
         if (!nodo) return;
-
         std::cout << nodo->libro->toString() << "\n";
-        NodoLibro* actual = nodo->repetidos.getCabeza();
-        while (actual != nullptr) {
-            std::cout << "   [Repetido] " << actual->libro->toString() << "\n";
-            actual = actual->siguiente;
-        }
-
         preOrden(nodo->izquierdo);
         preOrden(nodo->derecho);
     }
@@ -47,13 +30,7 @@ public:
         if (!nodo) return;
         postOrden(nodo->izquierdo);
         postOrden(nodo->derecho);
-
         std::cout << nodo->libro->toString() << "\n";
-        NodoLibro* actual = nodo->repetidos.getCabeza();
-        while (actual != nullptr) {
-            std::cout << "   [Repetido] " << actual->libro->toString() << "\n";
-            actual = actual->siguiente;
-        }
     }
 };
 

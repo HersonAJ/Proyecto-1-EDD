@@ -7,7 +7,7 @@ ArbolAVL::ArbolAVL()
 }
 
 ArbolAVL::~ArbolAVL() {
-    // Destructor: liberar memoria del árbol
+    //Destructor: liberar memoria del árbol
     destruir(raiz);
 }
 
@@ -16,10 +16,12 @@ void ArbolAVL::destruir(NodoAVL* nodo) {
     if (!nodo) return;
     destruir(nodo->izquierdo);
     destruir(nodo->derecho);
+    delete nodo->libro;
     delete nodo;
 }
 void ArbolAVL::guardarComoDOT(const std::string& ruta) const {
-   // ExportadorDOT<NodoAVL>::exportar(raiz, ruta);
+   ExportadorDOT<NodoAVL> exportador(raiz, ruta);
+    exportador.exportar();
 }
 
 //metodos para el balanceo
