@@ -46,6 +46,7 @@ add_executable(Biblioteca_Magica main.cpp
         AVL/NodoAVL_Auxiliar.h
         AVL/AVL_Auxiliar.h
         AVL/AVL_Auxiliar.cpp
+        AVL/ListaEncontrados.h
 )
 target_link_libraries(Biblioteca_Magica
         Qt5::Core

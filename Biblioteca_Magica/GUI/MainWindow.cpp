@@ -223,18 +223,52 @@ void MainWindow::onBuscarPorTitulo() {
                                            "", &ok);
     if (!ok || titulo.isEmpty()) return;
 
-    NodoAVL* encontrado = arbol.buscar(titulo.toStdString());
+    // primera coincidencia
+    Libro* primerEncontrado = arbol.buscarPorTitulo(titulo.toStdString());
 
-    if (encontrado) {
-        appendLog("Libro encontrado: " + encontrado->libro->toString(), "ok");
-        QMessageBox::information(this, "Resultado",
-            QString::fromStdString(encontrado->libro->toString()));
+    // lista completa de coincidencias
+    ListaEcontados* lista = arbol.buscarTodosPorTitulo(titulo.toStdString());
+    Nodo* actual = lista->getCabeza();
 
+    if (primerEncontrado && actual) {
+        QMessageBox::information(this, "Resultados", "Se encontraron coincidencias.");
+
+        // salto de línea antes de mostrar resultados
+        appendLog("\n--- Resultados de búsqueda ---", "ok");
+
+        // primer resultado
+        appendLog("Primer libro encontrado:\n " + primerEncontrado->toString(), "ok");
+
+        // otras coincidencias
+        int contador = 0;
+        actual = lista->getCabeza();
+
+        QString encabezado = "Otras coincidencias:";
+        bool hayOtras = false;
+
+        while (actual) {
+            if (actual->libro != primerEncontrado) {
+                if (!hayOtras) {
+                    appendLog(encabezado.toStdString(), "ok");
+                    hayOtras = true;
+                }
+                contador++;
+                appendLog((QString::number(contador) + ". " +
+                           QString::fromStdString(actual->libro->toString())).toStdString(), "ok");
+            }
+            actual = actual->siguiente;
+        }
+
+        if (!hayOtras) {
+            appendLog("No hay otras coincidencias.", "info");
+        }
 
     } else {
-        appendLog("No se encontró el libro con título: " + titulo.toStdString(), "error");
+        appendLog("No se encontró el libro con el título: " + titulo.toStdString(), "error");
         QMessageBox::warning(this, "Sin resultados", "No se encontró el libro.");
     }
+
+    delete lista;
 }
 
 void MainWindow::onEliminarLibro() {

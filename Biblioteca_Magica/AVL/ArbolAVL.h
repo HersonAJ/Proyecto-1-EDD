@@ -4,6 +4,7 @@
 #include "NodoAVL.h"
 #include "AVL_Auxiliar.h"
 #include <string>
+#include "ListaEncontrados.h"
 
 class ArbolAVL {
 private:
@@ -33,6 +34,9 @@ private:
     int compararLibros(Libro* a, Libro* b) const;
     int compararIsbn(Libro* a, Libro* b) const;
 
+    Libro* buscarPorTituloRecursivo(NodoAVL* nodo, const std::string& titulo);
+    void buscarTodosPorTituloRecursivo(NodoAVL* nodo, const std::string& titulo, ListaEcontados* lista);
+
 
 public:
     ArbolAVL();
@@ -47,6 +51,10 @@ public:
     NodoAVL* getRaiz() const { return raiz; }
 
     void guardarComoDOT(const std::string& ruta) const;
+
+    Libro* buscarPorTitulo(const std::string& titulo);
+    ListaEcontados* buscarTodosPorTitulo(const std::string& titulo);
+
 };
 
 #endif // PROYECTO1QT_ARBOLAVL_H
