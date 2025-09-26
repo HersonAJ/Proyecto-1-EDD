@@ -238,43 +238,32 @@ void MainWindow::onBuscarPorTitulo() {
 }
 
 void MainWindow::onEliminarLibro() {
-    /*if (arbol.estaVacio()) {
+    if (arbol.estaVacio()) {
         appendLog("El árbol está vacío. No hay libros para eliminar.", "error");
         return;
     }
 
     bool ok;
-    QString titulo = QInputDialog::getText(this, "Eliminar libro",
-                                           "Título del libro a eliminar:", QLineEdit::Normal,
-                                           "", &ok);
-    if (!ok || titulo.isEmpty()) return;
+    QString isbn = QInputDialog::getText(this, "Eliminar libro",
+                                         "ISBN del libro a eliminar:", QLineEdit::Normal,
+                                         "", &ok);
+    if (!ok || isbn.isEmpty()) return;
 
-    Libro libroAEliminar(titulo.toStdString(), "", "", "", "");
+    // Eliminar directamente en el AVL
+    arbol.eliminarPorISBN(isbn.toStdString());
 
-    NodoAVL* encontrado = arbol.buscar(libroAEliminar, arbol.getRaiz());
-    if (!encontrado) {
-        appendLog("No se encontró el libro con título: " + titulo.toStdString(), "error");
-        QMessageBox::warning(this, "Sin resultados", "No se encontró el libro.");
-        return;
-    }
-
-    // Usar la versión recursiva que actualiza la raíz
-    EliminacionAVL::eliminar(arbol, libroAEliminar);
-
-    //implementacion de eliminacion en el Arbol b
+    // Eliminar también en el Árbol B (recorriendo por ISBN)
     try {
-        int año = std::stoi(encontrado->dato.getFecha());
-        arbolB.eliminar(año);
-
-        //debug temporal del arbol b
-        appendLog("Arbol B despues de eliminar", "info");
+        //arbolB.eliminarPorISBN(isbn.toStdString());  //
+        appendLog("Árbol B después de eliminar.", "info");
         debugMostrarArbolB();
     } catch (const std::exception& e) {
-        appendLog("Error al interpretar la fecha del libro para eliminar en el arbol B.", "error");
+        appendLog("Error al eliminar en el Árbol B con ISBN: " + isbn.toStdString(), "error");
     }
 
-    appendLog("Libro eliminado: " + titulo.toStdString(), "ok");
-    QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");*/
+    // (más adelante se hará lo mismo con el B+)
+    appendLog("Libro eliminado con ISBN: " + isbn.toStdString(), "ok");
+    QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");
 }
 
 void MainWindow::onExportarB() {
