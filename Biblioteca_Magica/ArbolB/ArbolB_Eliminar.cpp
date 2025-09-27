@@ -2,6 +2,7 @@
 #include <ostream>
 #include "ArbolB.h"
 // Método para eliminar un libro por fecha
+/*
 void ArbolB::eliminar(int fecha) {
     if (raiz == nullptr) {
         std::cout << "El árbol está vacío" << std::endl;
@@ -213,4 +214,4 @@ void ArbolB::fusionar(NodoB* nodo, int idx) {
     nodo->numClaves--;
 
     delete hermano;
-}
+}*/

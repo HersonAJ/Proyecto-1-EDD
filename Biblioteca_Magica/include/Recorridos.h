@@ -36,6 +36,7 @@ public:
 
 
 //recorrido para el arbolB prueba
+/*
 class RecorridosB {
 public:
     static void inOrden(NodoB* nodo) {
@@ -146,6 +147,6 @@ public:
 
         std::cout << std::endl;
     }
-};
+};*/
 
 #endif //BIBLIOTECA_MAGICA_RECORRIDOS_H

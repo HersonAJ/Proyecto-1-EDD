@@ -1,6 +1,6 @@
 #include "ArbolB.h"
 #include <string>
-
+/*
 ListaLibros ArbolB::buscarPorRango(int inicio, int fin) {
     ListaLibros resultados;
     if (raiz != nullptr) {
@@ -64,3 +64,4 @@ void ArbolB::buscarRangoRecursivo(NodoB *nodo, int inicio, int fin, ListaLibros&
         }
     }
 }
+*/

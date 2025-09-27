@@ -67,10 +67,10 @@ void MainWindow::createMenu() {
     QAction *actionExportar = new QAction("Exportar AVL como imagen", this);
     connect(actionExportar, &QAction::triggered, this, &MainWindow::onExportarAVL);
     menuArchivo->addAction(actionExportar);
-
+/*
     QAction *actionExportarB = new QAction("Exportar B", this);
     connect(actionExportarB, &QAction::triggered, this, &MainWindow::onExportarB);
-    menuArchivo->addAction(actionExportarB);
+    menuArchivo->addAction(actionExportarB);*/
 
     menuArchivo->addSeparator();
 
@@ -92,9 +92,9 @@ void MainWindow::createMenu() {
     QAction *actionBuscarTitulo = new QAction("Por título", this);
     connect(actionBuscarTitulo, &QAction::triggered, this, &MainWindow::onBuscarPorTitulo);
 
-    QAction* actionBuscarFecha = new QAction("Por año de publicacion rango", this);
+    /*QAction* actionBuscarFecha = new QAction("Por año de publicacion rango", this);
     connect(actionBuscarFecha, &QAction::triggered, this, &MainWindow::onBuscarPorFecha);
-    menuBuscar->addAction(actionBuscarFecha);
+    menuBuscar->addAction(actionBuscarFecha);*/
     menuBuscar->addAction(actionBuscarTitulo);
     menuBuscar->addAction("Por ISBN");
     menuBuscar->addAction("Por género");
@@ -177,9 +177,26 @@ void MainWindow::onCargarArchivo() {
 
     lector.procesarArchivo();
 
-    //debug temporal
-    appendLog("Arbol B despues de cargar el archivo.", "info");
-    debugMostrarArbolB();
+    // 🔥 NUEVO: Debug del Árbol B
+    appendLog("=== ESTRUCTURA DEL ÁRBOL B (DEBUG) ===", "info");
+
+    // Crear un string temporal para capturar la salida
+    std::stringstream buffer;
+    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
+
+    // Llamar a la función de impresión
+    arbolB.imprimirParaPrueba();
+
+    // Restaurar cout y obtener el resultado
+    std::cout.rdbuf(old);
+    std::string resultado = buffer.str();
+
+    // Mostrar en el log línea por línea
+    std::istringstream stream(resultado);
+    std::string linea;
+    while (std::getline(stream, linea)) {
+        appendLog(linea, "debug");
+    }
 
     appendLog("Archivo procesado correctamente.");
     QMessageBox::information(this, "Éxito", "Archivo cargado y procesado correctamente.");
@@ -290,7 +307,7 @@ void MainWindow::onEliminarLibro() {
     try {
         //arbolB.eliminarPorISBN(isbn.toStdString());  //
         appendLog("Árbol B después de eliminar.", "info");
-        debugMostrarArbolB();
+//        debugMostrarArbolB();
     } catch (const std::exception& e) {
         appendLog("Error al eliminar en el Árbol B con ISBN: " + isbn.toStdString(), "error");
     }
@@ -299,7 +316,7 @@ void MainWindow::onEliminarLibro() {
     appendLog("Libro eliminado con ISBN: " + isbn.toStdString(), "ok");
     QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");
 }
-
+/*
 void MainWindow::onExportarB() {
     QString ruta = QFileDialog::getSaveFileName(
         this,
@@ -330,7 +347,7 @@ void MainWindow::onExportarB() {
 }
 
 void MainWindow::onBuscarPorFecha() {
-    if (!arbolB.getRaiz()) {
+   /* if (!arbolB.getRaiz()) {
         appendLog("El arbol B esta vacio. Cargue datos antes de buscar.", "error");
         return;
     }
@@ -378,7 +395,7 @@ void MainWindow::onBuscarPorFecha() {
 }
 
 void MainWindow::debugMostrarArbolB() {
-    std::stringstream ss;
+    /*std::stringstream ss;
     ss << "contenido del arbol B inOrden;\n";
     std::streambuf* oldCoutBuffer = std::cout.rdbuf();
     std::cout.rdbuf(ss.rdbuf());
@@ -390,4 +407,4 @@ void MainWindow::debugMostrarArbolB() {
     std::cout.rdbuf(oldCoutBuffer);
 
     appendLog(ss.str(), "debug");
-}
+}*/

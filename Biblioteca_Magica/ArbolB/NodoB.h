@@ -7,20 +7,21 @@ const int T = 3; //grado minimo del arbol
 
 class NodoB {
     public:
-    int numClaves;  //numero actual de claves en el nodo
-    Libro* claves[2*T -1]; // arreglo de punteros a libros (max. 2T - 1 claves)
-    NodoB* hijos[2*T];  //punteros a hijos (max 2T hijos)
-    bool esHoja;   //verifica si es hoja o no
+    int numClaves;
+    int fechas[2*T - 1];
+    Libro* libros[2*T - 1];
+    NodoB* hijos[2*T];
+    bool esHoja;
 
     NodoB(bool hoja) {
         esHoja = hoja;
         numClaves = 0;
         for (int i = 0; i < 2*T; i++) {
             hijos[i] = nullptr;
-        }
-
-        for (int i = 0; i < 2*T -1; i++) {
-            claves[i] = nullptr;
+            if (i < 2*T - 1) {
+                fechas[i] = 0;
+                libros[i] = nullptr;
+            }
         }
     }
 };

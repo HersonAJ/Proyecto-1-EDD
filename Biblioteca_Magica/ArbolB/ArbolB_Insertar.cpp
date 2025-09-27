@@ -1,191 +1,167 @@
-#include  "ArbolB.h"
-#include  <iostream>
+#include "ArbolB.h"
+#include <iostream>
 
-void ArbolB::insertar(Libro *libro) {
-    // Validación de entrada
-    if (libro == nullptr) {
-        std::cerr << "Error: Intento de insertar libro nulo" << std::endl;
-        return;
-    }
+//destructor
+ArbolB::~ArbolB() {
+    destruirRecursivo(raiz);
+}
 
-    if (raiz == nullptr) {
-        // Si el árbol está vacío, se crea la raíz
-        raiz = new NodoB(true);
-        if (raiz == nullptr) {
-            std::cerr << "Error: No se pudo asignar memoria para la raíz" << std::endl;
-            return;
+void ArbolB::destruirRecursivo(NodoB* nodo) {
+    if (nodo) {
+        //si no es hoja, destruir hijos primero
+        if (!nodo->esHoja) {
+            for (int i = 0; i <= nodo->numClaves; i++) {
+                destruirRecursivo(nodo->hijos[i]);
+            }
         }
-        raiz->claves[0] = libro;
+
+        delete nodo;
+    }
+}
+
+//metodo publico de insercion
+void ArbolB::insertar(Libro *libro) {
+    //convertir la la fecha string a int para el ordenamiento
+    int fechaInt = libro->getFechaInt();
+
+    //si es arbol esta vacio
+    if (raiz == nullptr) {
+        raiz = new NodoB(true);
+        raiz->fechas[0] = fechaInt;
+        raiz->libros[0] = libro;
         raiz->numClaves = 1;
     } else {
-        // Si la raíz está llena se tiene que dividir
-        if (raiz->numClaves == 2 * T - 1) {
+        //si la raiz esta llena, dividir
+        if (raiz->numClaves == 2*T - 1) {
             NodoB* nuevaRaiz = new NodoB(false);
-            if (nuevaRaiz == nullptr) {
-                std::cerr << "Error: No se pudo asignar memoria para nueva raíz" << std::endl;
-                return;
-            }
-
             nuevaRaiz->hijos[0] = raiz;
-            // Dividir la raíz
-            dividirHijo(nuevaRaiz, 0, raiz);
+            dividirHijo(nuevaRaiz, 0);
+            raiz = nuevaRaiz;
 
-            // Decidir en qué hijo insertar
+            //decidir qye hijo insertar
             int i = 0;
-            if (libro->compararPorFecha(*nuevaRaiz->claves[0]) > 0) {
+            if (fechaInt > nuevaRaiz->fechas[0]) {
                 i++;
             }
-            insertarNoLleno(nuevaRaiz->hijos[i], libro);
-            raiz = nuevaRaiz;
+            insertarNoLleno(nuevaRaiz->hijos[i], fechaInt, libro);
         } else {
-            insertarNoLleno(raiz, libro);
+            insertarNoLleno(raiz, fechaInt, libro);
         }
     }
 }
 
-//metodo para insertar en un nodo que no esta lleno
-void ArbolB::insertarNoLleno(NodoB *nodo, Libro *libro) {
-    // Validación de entrada
-    if (nodo == nullptr || libro == nullptr) {
-        std::cerr << "Error: Nodo o libro nulo en insertarNoLleno" << std::endl;
-        return;
+//dividir hijo lleno
+void ArbolB::dividirHijo(NodoB *padre, int indice) {
+    NodoB* hijo = padre->hijos[indice];
+    NodoB* nuevoHijo = new NodoB(hijo->esHoja);
+    nuevoHijo->numClaves = T - 1;
+
+    //copiar las ultimas T - 1 claves e hijos del hijo original al nuevo hijo
+    // Copiar claves y libros
+    for (int j = 0; j < T - 1; j++) {
+        nuevoHijo->fechas[j] = hijo->fechas[j + T];
+        nuevoHijo->libros[j] = hijo->libros[j + T];
     }
 
+    // Copiar hijos si no es hoja
+    if (!hijo->esHoja) {
+        for (int j = 0; j < T; j++) {
+            nuevoHijo->hijos[j] = hijo->hijos[j + T];
+        }
+    }
+
+
+    hijo->numClaves = T - 1;
+
+    //desplazar hijos del pabre para hacer espacio
+    for (int j = padre->numClaves; j >= indice + 1; j--) {
+        padre->hijos[j + 1] = padre->hijos[j];
+    }
+    padre->hijos[indice + 1] = nuevoHijo;
+
+    //desplazar clave del padre
+    for (int j = padre->numClaves - 1; j >= indice; j--) {
+        padre->fechas[j + 1] = padre->fechas[j];
+        padre->libros[j + 1] = padre->libros[j];
+    }
+
+    //subir clave media del hijo al padre
+    padre->fechas[indice] = hijo->fechas[T - 1];
+    padre->libros[indice] = hijo->libros[T - 1];
+    padre->numClaves++;
+}
+
+// Insertar en nodo no lleno
+void ArbolB::insertarNoLleno(NodoB* nodo, int fecha, Libro* libro) {
     int i = nodo->numClaves - 1;
 
     if (nodo->esHoja) {
-        // Mover claves hacia la derecha hasta encontrar la posición correcta
-        while (i >= 0 && libro->compararPorFecha(*nodo->claves[i]) < 0) {
-            nodo->claves[i + 1] = nodo->claves[i];
+        // Encontrar posición e insertar
+        while (i >= 0 && fecha < nodo->fechas[i]) {
+            nodo->fechas[i + 1] = nodo->fechas[i];
+            nodo->libros[i + 1] = nodo->libros[i];
             i--;
         }
-        nodo->claves[i + 1] = libro;
+        nodo->fechas[i + 1] = fecha;
+        nodo->libros[i + 1] = libro;
         nodo->numClaves++;
     } else {
-        // Buscar el hijo adecuado
-        while (i >= 0 && libro->compararPorFecha(*nodo->claves[i]) < 0) {
+        // Encontrar hijo adecuado
+        while (i >= 0 && fecha < nodo->fechas[i]) {
             i--;
         }
         i++;
 
-        // Si el hijo está lleno se divide
-        if (nodo->hijos[i] != nullptr && nodo->hijos[i]->numClaves == 2 * T - 1) {
-            dividirHijo(nodo, i, nodo->hijos[i]);
-            // Después de dividir, revisar si debemos ir al hijo derecho
-            if (libro->compararPorFecha(*nodo->claves[i]) > 0) {
+        // Si el hijo está lleno, dividirlo
+        if (nodo->hijos[i]->numClaves == 2*T - 1) {
+            dividirHijo(nodo, i);
+            if (fecha > nodo->fechas[i]) {
                 i++;
             }
         }
-        insertarNoLleno(nodo->hijos[i], libro);
+        insertarNoLleno(nodo->hijos[i], fecha, libro);
     }
 }
 
+#include <queue>//solo para el log para verificar la estructura del arbol
 
-//dividir un hijo lleno en dos nodos
-/*void ArbolB::dividirHijo(NodoB *padre, int i, NodoB *hijo) {
-    // Validaciones de entrada
-    if (padre == nullptr || hijo == nullptr) {
-        std::cerr << "Error: Padre o hijo nulo en dividirHijo" << std::endl;
+// Método simple para verificar la inserción
+void ArbolB::imprimirParaPrueba() {
+    if (!raiz) {
+        std::cout << "Árbol B vacío\n";
         return;
     }
 
-    if (i < 0 || i > padre->numClaves) {
-        std::cerr << "Error: Índice inválido en dividirHijo" << std::endl;
-        return;
-    }
+    std::queue<NodoB*> cola;
+    cola.push(raiz);
+    int nivel = 0;
 
-    NodoB* nuevo = new NodoB(hijo->esHoja);
-    if (nuevo == nullptr) {
-        std::cerr << "Error: No se pudo asignar memoria para nuevo nodo" << std::endl;
-        return;
-    }
+    while (!cola.empty()) {
+        int nodosEnNivel = cola.size();
+        std::cout << "Nivel " << nivel << ": ";
 
-    nuevo->numClaves = T - 1;
+        for (int i = 0; i < nodosEnNivel; i++) {
+            NodoB* actual = cola.front();
+            cola.pop();
 
-    // Copiar las últimas T-1 claves al nuevo nodo
-    for (int j = 0; j < T - 1; j++) {
-        nuevo->claves[j] = hijo->claves[j + T];
-        hijo->claves[j + T] = nullptr; // Limpiar referencia en el hijo
-    }
+            //SOLO imprimir claves válidas
+            std::cout << "[";
+            for (int j = 0; j < actual->numClaves; j++) {
+                std::cout << actual->fechas[j];
+                if (j < actual->numClaves - 1) std::cout << ",";
+            }
+            std::cout << "] ";
 
-    // Copiar los hijos si no es hoja
-    if (!hijo->esHoja) {
-        for (int j = 0; j < T; j++) {
-            nuevo->hijos[j] = hijo->hijos[j + T];
-            hijo->hijos[j + T] = nullptr; // Limpiar referencia en el hijo
+            //SOLO encolar hijos existentes
+            if (!actual->esHoja) {
+                for (int j = 0; j <= actual->numClaves; j++) {
+                    if (actual->hijos[j]) {
+                        cola.push(actual->hijos[j]);
+                    }
+                }
+            }
         }
+        std::cout << "\n";
+        nivel++;
     }
-
-    hijo->numClaves = T - 1;
-
-    // Mover los hijos del padre para hacer espacio
-    for (int j = padre->numClaves; j >= i + 1; j--) {
-        padre->hijos[j + 1] = padre->hijos[j];
-    }
-    padre->hijos[i + 1] = nuevo;
-
-    // Mover las claves del padre
-    for (int j = padre->numClaves - 1; j >= i; j--) {
-        padre->claves[j + 1] = padre->claves[j];
-    }
-
-    // La clave media sube al padre
-    padre->claves[i] = hijo->claves[T - 1];
-    hijo->claves[T - 1] = nullptr; // Limpiar la clave que subió
-    padre->numClaves++;
-}
-
-*/
-// Dividir un hijo lleno en dos nodos
-void ArbolB::dividirHijo(NodoB *padre, int i, NodoB *hijo) {
-    // Validaciones de entrada
-    if (padre == nullptr || hijo == nullptr) {
-        std::cerr << "Error: Padre o hijo nulo en dividirHijo" << std::endl;
-        return;
-    }
-
-    if (i < 0 || i > padre->numClaves) {
-        std::cerr << "Error: Índice inválido en dividirHijo" << std::endl;
-        return;
-    }
-
-    NodoB* nuevo = new NodoB(hijo->esHoja);
-    if (nuevo == nullptr) {
-        std::cerr << "Error: No se pudo asignar memoria para nuevo nodo" << std::endl;
-        return;
-    }
-
-    // Copiar las últimas T-1 claves de hijo → nuevo
-    nuevo->numClaves = T - 1;
-    for (int j = 0; j < T - 1; j++) {
-        nuevo->claves[j] = hijo->claves[j + T];
-        hijo->claves[j + T] = nullptr; // limpiar referencia
-    }
-
-    // Copiar los hijos si no es hoja
-    if (!hijo->esHoja) {
-        for (int j = 0; j < T; j++) {
-            nuevo->hijos[j] = hijo->hijos[j + T];
-            hijo->hijos[j + T] = nullptr; // limpiar referencia
-        }
-    }
-
-    // Reducir el número de claves en hijo (se queda con T-1)
-    hijo->numClaves = T - 1;
-
-    // Desplazar los hijos del padre a la derecha para insertar el nuevo
-    for (int j = padre->numClaves; j >= i + 1; j--) {
-        padre->hijos[j + 1] = padre->hijos[j];
-    }
-    padre->hijos[i + 1] = nuevo;
-
-    // Desplazar las claves del padre a la derecha para insertar la mediana
-    for (int j = padre->numClaves - 1; j >= i; j--) {
-        padre->claves[j + 1] = padre->claves[j];
-    }
-
-    // Subir la clave mediana desde hijo al padre
-    padre->claves[i] = hijo->claves[T - 1];
-    hijo->claves[T - 1] = nullptr; // limpiar referencia de la mediana
-    padre->numClaves++;
 }

@@ -19,10 +19,10 @@ public:
 private slots:
     void onCargarArchivo();
     void onExportarAVL();
-    void onExportarB();
+    //void onExportarB();
     void onBuscarPorTitulo();
     void onEliminarLibro();
-    void onBuscarPorFecha();
+    //void onBuscarPorFecha();
 
 private:
     void createMenu();

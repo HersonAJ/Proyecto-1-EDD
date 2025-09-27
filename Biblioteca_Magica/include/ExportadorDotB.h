@@ -6,7 +6,7 @@
 #include <fstream>
 #include "../ArbolB/ArbolB.h"
 #include  "../ArbolB/NodoB.h"
-
+/*
 class ExportarDotB {
 public:
     // Genera el contenido DOT como string.
@@ -50,7 +50,7 @@ private:
                 case '\\': r += "\\\\"; break;
                 case '"':  r += "\\\""; break;
                 case '\n': r += "\\n";  break;
-                case '\r': /* skip */   break;
+                case '\r': /* skip    break;
                 default:   r += c;      break;
             }
         }
@@ -99,5 +99,5 @@ private:
         return myId;
     }
 };
-
+*/
 #endif //BIBLIOTECA_MAGICA_EXPORTADORDOTB_H
