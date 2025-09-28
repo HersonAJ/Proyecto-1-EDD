@@ -1,29 +1,33 @@
-#include "AVLViewer.h"
+#include "BViewer.h"
 #include <QPixmap>
 #include <cstdlib>
+#include "../../../include/ExportadorDotB.h"
 
-AVLViewer::AVLViewer(ArbolAVL* arbol, QWidget* parent)
+BViewer::BViewer(ArbolB* arbol, QWidget* parent)
     : QWidget(parent), arbol(arbol)
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
 
     imagenLabel = new QLabel(this);
     imagenLabel->setAlignment(Qt::AlignCenter);
-    imagenLabel->setScaledContents(true); 
+    imagenLabel->setScaledContents(true);
 
     scrollArea = new QScrollArea(this);
     scrollArea->setWidget(imagenLabel);
-    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidgetResizable(true); // la imagen se adapta al área
     layout->addWidget(scrollArea);
 
     setLayout(layout);
 }
 
-void AVLViewer::actualizarVista() {
-    std::string dotFile = "arbol.dot";
-    std::string pngFile = "arbol.png";
+void BViewer::actualizarVista() {
+    std::string dotFile = "arbolB.dot";
+    std::string pngFile = "arbolB.png";
 
-    arbol->guardarComoDOT(dotFile);
+    if (!ExportarDotB::generarArchivo(*arbol, dotFile)) {
+        return;
+    }
+
     std::string comando = "dot -Tpng " + dotFile + " -o " + pngFile;
     int resultado = system(comando.c_str());
 
@@ -40,7 +44,7 @@ void AVLViewer::actualizarVista() {
     }
 }
 
-void AVLViewer::wheelEvent(QWheelEvent* event) {
+void BViewer::wheelEvent(QWheelEvent* event) {
     if (event->modifiers() & Qt::ControlModifier) {
         if (event->angleDelta().y() > 0) {
             escala *= 1.1; // zoom in

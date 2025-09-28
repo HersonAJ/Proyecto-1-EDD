@@ -47,6 +47,8 @@ add_executable(Biblioteca_Magica main.cpp
         AVL_Auxiliar/NodoIndiceISBN.h
         AVL_Auxiliar/IndiceISBN.h
         AVL_Auxiliar/ArbolAVL_Auxiliar.cpp
+        GUI/Vistas/B/BViewer.h
+        GUI/Vistas/B/BViewer.cpp
 )
 target_link_libraries(Biblioteca_Magica
         Qt5::Core

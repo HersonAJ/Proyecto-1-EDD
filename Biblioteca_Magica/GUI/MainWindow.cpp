@@ -15,6 +15,7 @@
 #include <QLineEdit>
 #include "../include/ExportadorDotB.h"
 #include "Vistas/AVL/AVLViewer.h"
+#include "Vistas/B/BViewer.h"
 #include  <QLabel>
 #include  <QTabWidget>
 
@@ -43,6 +44,9 @@ MainWindow::MainWindow(QWidget *parent)
     // Crear viewer AVL y agregarlo como pestaña
     avlViewer = new AVLViewer(&arbol, this);
     tabs->addTab(avlViewer, "AVL");
+
+    bViewer = new BViewer(&arbolB, this);
+    tabs->addTab(bViewer, "Arbol B");
 
     //espacio para visualizar los otros arboles
 
@@ -108,10 +112,16 @@ void MainWindow::createMenu() {
         avlViewer->actualizarVista();            // refresca la imagen
         tabs->setCurrentWidget(avlViewer);       // cambia a la pestaña AVL
     });
+
+    QAction *actionVerB = new QAction("Ver arbol B", this);
+    connect(actionVerB, &QAction::triggered, this, [this]() {
+        bViewer->actualizarVista();
+        tabs->setCurrentWidget(bViewer);
+    });
+
+    menuVisualizacion->addAction(actionVerB);
     menuVisualizacion->addAction(actionVerAVL);
 
-
-    menuVisualizacion->addAction("Ver Árbol B");
     menuVisualizacion->addAction("Ver Árbol B+");
     menuVisualizacion->addSeparator();
     menuVisualizacion->addAction("Comparar rendimiento");
