@@ -78,8 +78,8 @@ std::string LectorCSV::limpiarCampo(const std::string& campoOriginal) {
 }
 
 // Constructor
-LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB)
-    : rutaArchivo(ruta), arbol(arbolDestino), arbolB(arbolB) {}
+LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB, IndiceISBN& indice)
+    : rutaArchivo(ruta), arbol(arbolDestino), arbolB(arbolB), indiceISBN(indice) {}
 
 
 void LectorCSV::procesarArchivo() {
@@ -144,6 +144,7 @@ void LectorCSV::procesarArchivo() {
         std::cout << "Insertando en Árbol B - Fecha: '" << fecha << "' -> " << libro->getFechaInt() << std::endl;
         arbol.insertar(libro);
         arbolB.insertar(libro);
+        indiceISBN.insertar(libro->getIsbn(), libro);
 
         //RecorridosAVL<NodoAVL>::inOrden(arbol.getRaiz());
 

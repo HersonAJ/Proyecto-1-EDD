@@ -67,10 +67,10 @@ void MainWindow::createMenu() {
     QAction *actionExportar = new QAction("Exportar AVL como imagen", this);
     connect(actionExportar, &QAction::triggered, this, &MainWindow::onExportarAVL);
     menuArchivo->addAction(actionExportar);
-/*
+
     QAction *actionExportarB = new QAction("Exportar B", this);
     connect(actionExportarB, &QAction::triggered, this, &MainWindow::onExportarB);
-    menuArchivo->addAction(actionExportarB);*/
+    menuArchivo->addAction(actionExportarB);
 
     menuArchivo->addSeparator();
 
@@ -165,7 +165,7 @@ void MainWindow::onCargarArchivo() {
 
     appendLog("Cargando archivo: " + rutaArchivo, "info");
 
-    LectorCSV lector(rutaArchivo, arbol, arbolB);
+    LectorCSV lector(rutaArchivo, arbol, arbolB, indiceISBN);
     lector.setLogger([this](const std::string &msg) {
         // Detectar si es error o no
         if (msg.rfind("Error", 0) == 0) { // empieza con "Error"
@@ -300,8 +300,10 @@ void MainWindow::onEliminarLibro() {
                                          "", &ok);
     if (!ok || isbn.isEmpty()) return;
 
+    std::string isbnStr = isbn.toStdString();
+
     // Eliminar directamente en el AVL
-    arbol.eliminarPorISBN(isbn.toStdString());
+    arbol.eliminarPorISBN(isbnStr, indiceISBN);
 
     // Eliminar también en el Árbol B (recorriendo por ISBN)
     try {
@@ -316,7 +318,7 @@ void MainWindow::onEliminarLibro() {
     appendLog("Libro eliminado con ISBN: " + isbn.toStdString(), "ok");
     QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");
 }
-/*
+
 void MainWindow::onExportarB() {
     QString ruta = QFileDialog::getSaveFileName(
         this,
@@ -346,6 +348,7 @@ void MainWindow::onExportarB() {
     }
 }
 
+/*
 void MainWindow::onBuscarPorFecha() {
    /* if (!arbolB.getRaiz()) {
         appendLog("El arbol B esta vacio. Cargue datos antes de buscar.", "error");

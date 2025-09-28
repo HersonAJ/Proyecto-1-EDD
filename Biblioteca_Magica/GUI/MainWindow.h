@@ -9,6 +9,7 @@
 #include "../ArbolB/ArbolB.h"
 #include "../AVL/ArbolAVL.h"
 #include "Vistas/AVL/AVLViewer.h"
+#include "../AVL_Auxiliar/IndiceISBN.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -19,7 +20,7 @@ public:
 private slots:
     void onCargarArchivo();
     void onExportarAVL();
-    //void onExportarB();
+    void onExportarB();
     void onBuscarPorTitulo();
     void onEliminarLibro();
     //void onBuscarPorFecha();
@@ -29,6 +30,7 @@ private:
     QPlainTextEdit *logWidget;
    ArbolAVL arbol;
     ArbolB arbolB;
+    IndiceISBN indiceISBN;
     void appendLog(const std::string &mensaje, const QString &tipo = "info");
     void debugMostrarArbolB();
 

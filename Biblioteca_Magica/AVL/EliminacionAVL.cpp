@@ -1,19 +1,20 @@
 #include "ArbolAVL.h"
+#include "../AVL_Auxiliar/IndiceISBN.h"
 
-void ArbolAVL::eliminarPorISBN(const std::string& isbn) {
+void ArbolAVL::eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGlobal) {
     // 1. Buscar en AVL auxiliar por ISBN (O(log n))
-    NodoAVL* nodoAEliminar = arbolAuxiliar.buscar(isbn);
+    //pasando al indice global isbn
+    Libro* libroEliminar = indiceGlobal.buscar(isbn);
 
-    if (!nodoAEliminar) return; // No encontrado
+    if (!libroEliminar) return; // No encontrado
 
     // 2. Obtener el título del libro a eliminar
-    std::string titulo = nodoAEliminar->libro->getTitulo();
+    std::string titulo = libroEliminar->getTitulo();
 
     // 3. Eliminar del AVL principal usando título + ISBN (búsqueda eficiente)
     raiz = eliminarNodoEficiente(raiz, titulo, isbn);
 
-    // 4. Eliminar del AVL auxiliar
-    arbolAuxiliar.eliminar(isbn);
+
 }
 
 NodoAVL* ArbolAVL::eliminarNodoEficiente(NodoAVL* nodo, const std::string& titulo, const std::string& isbn) {

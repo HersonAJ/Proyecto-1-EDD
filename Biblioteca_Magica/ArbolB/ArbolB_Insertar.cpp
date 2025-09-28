@@ -1,5 +1,6 @@
 #include "ArbolB.h"
 #include <iostream>
+#include <functional>
 
 //destructor
 ArbolB::~ArbolB() {
@@ -20,27 +21,23 @@ void ArbolB::destruirRecursivo(NodoB* nodo) {
 }
 
 //metodo publico de insercion
-void ArbolB::insertar(Libro *libro) {
-    //convertir la la fecha string a int para el ordenamiento
+void ArbolB::insertar(Libro* libro) {
     int fechaInt = libro->getFechaInt();
 
-    //si es arbol esta vacio
     if (raiz == nullptr) {
         raiz = new NodoB(true);
-        raiz->fechas[0] = fechaInt;
-        raiz->libros[0] = libro;
+        raiz->claves[0] = new EntradaFecha(fechaInt);
+        raiz->claves[0]->indiceISBN.insertar(libro->getIsbn(), libro);
         raiz->numClaves = 1;
     } else {
-        //si la raiz esta llena, dividir
         if (raiz->numClaves == 2*T - 1) {
             NodoB* nuevaRaiz = new NodoB(false);
             nuevaRaiz->hijos[0] = raiz;
             dividirHijo(nuevaRaiz, 0);
             raiz = nuevaRaiz;
 
-            //decidir qye hijo insertar
             int i = 0;
-            if (fechaInt > nuevaRaiz->fechas[0]) {
+            if (fechaInt > nuevaRaiz->claves[0]->fecha) {
                 i++;
             }
             insertarNoLleno(nuevaRaiz->hijos[i], fechaInt, libro);
@@ -51,43 +48,33 @@ void ArbolB::insertar(Libro *libro) {
 }
 
 //dividir hijo lleno
-void ArbolB::dividirHijo(NodoB *padre, int indice) {
+void ArbolB::dividirHijo(NodoB* padre, int indice) {
     NodoB* hijo = padre->hijos[indice];
     NodoB* nuevoHijo = new NodoB(hijo->esHoja);
     nuevoHijo->numClaves = T - 1;
 
-    //copiar las ultimas T - 1 claves e hijos del hijo original al nuevo hijo
-    // Copiar claves y libros
     for (int j = 0; j < T - 1; j++) {
-        nuevoHijo->fechas[j] = hijo->fechas[j + T];
-        nuevoHijo->libros[j] = hijo->libros[j + T];
+        nuevoHijo->claves[j] = hijo->claves[j + T];
     }
 
-    // Copiar hijos si no es hoja
     if (!hijo->esHoja) {
         for (int j = 0; j < T; j++) {
             nuevoHijo->hijos[j] = hijo->hijos[j + T];
         }
     }
 
-
     hijo->numClaves = T - 1;
 
-    //desplazar hijos del pabre para hacer espacio
     for (int j = padre->numClaves; j >= indice + 1; j--) {
         padre->hijos[j + 1] = padre->hijos[j];
     }
     padre->hijos[indice + 1] = nuevoHijo;
 
-    //desplazar clave del padre
     for (int j = padre->numClaves - 1; j >= indice; j--) {
-        padre->fechas[j + 1] = padre->fechas[j];
-        padre->libros[j + 1] = padre->libros[j];
+        padre->claves[j + 1] = padre->claves[j];
     }
 
-    //subir clave media del hijo al padre
-    padre->fechas[indice] = hijo->fechas[T - 1];
-    padre->libros[indice] = hijo->libros[T - 1];
+    padre->claves[indice] = hijo->claves[T - 1];
     padre->numClaves++;
 }
 
@@ -96,26 +83,34 @@ void ArbolB::insertarNoLleno(NodoB* nodo, int fecha, Libro* libro) {
     int i = nodo->numClaves - 1;
 
     if (nodo->esHoja) {
-        // Encontrar posición e insertar
-        while (i >= 0 && fecha < nodo->fechas[i]) {
-            nodo->fechas[i + 1] = nodo->fechas[i];
-            nodo->libros[i + 1] = nodo->libros[i];
-            i--;
+        // Buscar si la fecha ya existe
+        int j = 0;
+        while (j < nodo->numClaves && fecha > nodo->claves[j]->fecha) {
+            j++;
         }
-        nodo->fechas[i + 1] = fecha;
-        nodo->libros[i + 1] = libro;
-        nodo->numClaves++;
+
+        if (j < nodo->numClaves && nodo->claves[j]->fecha == fecha) {
+            //Fecha ya existe → insertar en su índice ISBN
+            nodo->claves[j]->indiceISBN.insertar(libro->getIsbn(), libro);
+        } else {
+            // Nueva fecha → desplazar y crear nueva entrada
+            for (int k = nodo->numClaves; k > j; k--) {
+                nodo->claves[k] = nodo->claves[k - 1];
+            }
+            nodo->claves[j] = new EntradaFecha(fecha);
+            nodo->claves[j]->indiceISBN.insertar(libro->getIsbn(), libro);
+            nodo->numClaves++;
+        }
     } else {
-        // Encontrar hijo adecuado
-        while (i >= 0 && fecha < nodo->fechas[i]) {
+        // Buscar hijo adecuado
+        while (i >= 0 && fecha < nodo->claves[i]->fecha) {
             i--;
         }
         i++;
 
-        // Si el hijo está lleno, dividirlo
         if (nodo->hijos[i]->numClaves == 2*T - 1) {
             dividirHijo(nodo, i);
-            if (fecha > nodo->fechas[i]) {
+            if (fecha > nodo->claves[i]->fecha) {
                 i++;
             }
         }
@@ -123,9 +118,9 @@ void ArbolB::insertarNoLleno(NodoB* nodo, int fecha, Libro* libro) {
     }
 }
 
-#include <queue>//solo para el log para verificar la estructura del arbol
+#include <queue>
 
-// Método simple para verificar la inserción
+// Método para imprimir el Árbol B y los ISBN de cada fecha
 void ArbolB::imprimirParaPrueba() {
     if (!raiz) {
         std::cout << "Árbol B vacío\n";
@@ -144,15 +139,31 @@ void ArbolB::imprimirParaPrueba() {
             NodoB* actual = cola.front();
             cola.pop();
 
-            //SOLO imprimir claves válidas
+            // Imprimir claves válidas
             std::cout << "[";
             for (int j = 0; j < actual->numClaves; j++) {
-                std::cout << actual->fechas[j];
-                if (j < actual->numClaves - 1) std::cout << ",";
+                EntradaFecha* entrada = actual->claves[j];
+                if (!entrada) continue;
+
+                std::cout << entrada->fecha;
+
+                // Mostrar también los ISBN de esta fecha
+                std::cout << " {ISBNs: ";
+                //índice ISBN en inOrden
+                std::function<void(NodoIndiceISBN*)> inOrden = [&](NodoIndiceISBN* nodo) {
+                    if (!nodo) return;
+                    inOrden(nodo->izquierdo);
+                    std::cout << nodo->isbn << " ";
+                    inOrden(nodo->derecho);
+                };
+                inOrden(entrada->indiceISBN.getRaiz());
+                std::cout << "}";
+
+                if (j < actual->numClaves - 1) std::cout << ", ";
             }
             std::cout << "] ";
 
-            //SOLO encolar hijos existentes
+            // Encolar hijos existentes
             if (!actual->esHoja) {
                 for (int j = 0; j <= actual->numClaves; j++) {
                     if (actual->hijos[j]) {

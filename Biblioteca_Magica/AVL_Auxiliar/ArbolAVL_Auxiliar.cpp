@@ -1,15 +1,15 @@
-#include "AVL_Auxiliar.h"
+#include "IndiceISBN.h"
 #include <algorithm>
 #include <iostream>
 #include <ostream>
 
-
-AVL_Auxiliar::AVL_Auxiliar() : raiz(nullptr) {}
-AVL_Auxiliar::~AVL_Auxiliar() {
+// Constructor / Destructor
+IndiceISBN::IndiceISBN() : raiz(nullptr) {}
+IndiceISBN::~IndiceISBN() {
     destruirRecursivo(raiz);
 }
 
-void AVL_Auxiliar::destruirRecursivo(const NodoAVL_Auxiliar* nodo) {
+void IndiceISBN::destruirRecursivo(const NodoIndiceISBN* nodo) {
     if (nodo) {
         destruirRecursivo(nodo->izquierdo);
         destruirRecursivo(nodo->derecho);
@@ -17,25 +17,25 @@ void AVL_Auxiliar::destruirRecursivo(const NodoAVL_Auxiliar* nodo) {
     }
 }
 
-
-int AVL_Auxiliar::altura(const NodoAVL_Auxiliar* nodo) const {
+// Altura y balance
+int IndiceISBN::altura(const NodoIndiceISBN* nodo) const {
     return nodo ? nodo->altura : 0;
 }
 
-int AVL_Auxiliar::factorBalance(const NodoAVL_Auxiliar* nodo) const {
+int IndiceISBN::factorBalance(const NodoIndiceISBN* nodo) const {
     return nodo ? altura(nodo->izquierdo) - altura(nodo->derecho) : 0;
 }
 
-NodoAVL_Auxiliar* AVL_Auxiliar::nodoMinimo(NodoAVL_Auxiliar* nodo) const {
-    NodoAVL_Auxiliar* actual = nodo;
+NodoIndiceISBN* IndiceISBN::nodoMinimo(NodoIndiceISBN* nodo) const {
+    NodoIndiceISBN* actual = nodo;
     while (actual && actual->izquierdo) actual = actual->izquierdo;
     return actual;
 }
 
-//Rotaciones
-NodoAVL_Auxiliar* AVL_Auxiliar::rotarIzquierda(NodoAVL_Auxiliar* ref) {
-    NodoAVL_Auxiliar* nodo = ref->derecho;
-    NodoAVL_Auxiliar* nodo1 = nodo->izquierdo;
+// Rotaciones
+NodoIndiceISBN* IndiceISBN::rotarIzquierda(NodoIndiceISBN* ref) {
+    NodoIndiceISBN* nodo = ref->derecho;
+    NodoIndiceISBN* nodo1 = nodo->izquierdo;
 
     nodo->izquierdo = ref;
     ref->derecho = nodo1;
@@ -46,9 +46,9 @@ NodoAVL_Auxiliar* AVL_Auxiliar::rotarIzquierda(NodoAVL_Auxiliar* ref) {
     return nodo;
 }
 
-NodoAVL_Auxiliar* AVL_Auxiliar::rotarDerecha(NodoAVL_Auxiliar* ref) {
-    NodoAVL_Auxiliar* nodo = ref->izquierdo;
-    NodoAVL_Auxiliar* nodo1 = nodo->derecho;
+NodoIndiceISBN* IndiceISBN::rotarDerecha(NodoIndiceISBN* ref) {
+    NodoIndiceISBN* nodo = ref->izquierdo;
+    NodoIndiceISBN* nodo1 = nodo->derecho;
 
     nodo->derecho = ref;
     ref->izquierdo = nodo1;
@@ -59,8 +59,8 @@ NodoAVL_Auxiliar* AVL_Auxiliar::rotarDerecha(NodoAVL_Auxiliar* ref) {
     return nodo;
 }
 
-//Balanceo
-NodoAVL_Auxiliar* AVL_Auxiliar::balancear(NodoAVL_Auxiliar* nodo) {
+// Balanceo
+NodoIndiceISBN* IndiceISBN::balancear(NodoIndiceISBN* nodo) {
     int balance = factorBalance(nodo);
 
     if (balance > 1 && factorBalance(nodo->izquierdo) >= 0)
@@ -82,14 +82,14 @@ NodoAVL_Auxiliar* AVL_Auxiliar::balancear(NodoAVL_Auxiliar* nodo) {
     return nodo;
 }
 
-//Inserción
-NodoAVL_Auxiliar* AVL_Auxiliar::insertarNodo(NodoAVL_Auxiliar* nodo, const std::string& isbn, NodoAVL* ref) {
-    if (!nodo) return new NodoAVL_Auxiliar(isbn, ref);
+// Inserción
+NodoIndiceISBN* IndiceISBN::insertarNodo(NodoIndiceISBN* nodo, const std::string& isbn, Libro* libro) {
+    if (!nodo) return new NodoIndiceISBN(isbn, libro);
 
     if (isbn < nodo->isbn)
-        nodo->izquierdo = insertarNodo(nodo->izquierdo, isbn, ref);
+        nodo->izquierdo = insertarNodo(nodo->izquierdo, isbn, libro);
     else if (isbn > nodo->isbn)
-        nodo->derecho = insertarNodo(nodo->derecho, isbn, ref);
+        nodo->derecho = insertarNodo(nodo->derecho, isbn, libro);
     else
         return nodo; // ISBN ya existe, no duplicados
 
@@ -97,12 +97,12 @@ NodoAVL_Auxiliar* AVL_Auxiliar::insertarNodo(NodoAVL_Auxiliar* nodo, const std::
     return balancear(nodo);
 }
 
-void AVL_Auxiliar::insertar(const std::string& isbn, NodoAVL* ref) {
-    raiz = insertarNodo(raiz, isbn, ref);
+void IndiceISBN::insertar(const std::string& isbn, Libro* libro) {
+    raiz = insertarNodo(raiz, isbn, libro);
 }
 
-//Eliminación
-NodoAVL_Auxiliar* AVL_Auxiliar::eliminarNodo(NodoAVL_Auxiliar* nodo, const std::string& isbn) {
+// Eliminación
+NodoIndiceISBN* IndiceISBN::eliminarNodo(NodoIndiceISBN* nodo, const std::string& isbn) {
     if (!nodo) return nullptr;
 
     if (isbn < nodo->isbn)
@@ -115,19 +115,19 @@ NodoAVL_Auxiliar* AVL_Auxiliar::eliminarNodo(NodoAVL_Auxiliar* nodo, const std::
             return nullptr;
         }
         else if (!nodo->izquierdo) {
-            NodoAVL_Auxiliar* temp = nodo->derecho;
+            NodoIndiceISBN* temp = nodo->derecho;
             delete nodo;
             return temp;
         }
         else if (!nodo->derecho) {
-            NodoAVL_Auxiliar* temp = nodo->izquierdo;
+            NodoIndiceISBN* temp = nodo->izquierdo;
             delete nodo;
             return temp;
         }
         else {
-            NodoAVL_Auxiliar* sucesor = nodoMinimo(nodo->derecho);
+            NodoIndiceISBN* sucesor = nodoMinimo(nodo->derecho);
             nodo->isbn = sucesor->isbn;
-            nodo->referencia = sucesor->referencia;
+            nodo->libro = sucesor->libro;
             nodo->derecho = eliminarNodo(nodo->derecho, sucesor->isbn);
         }
     }
@@ -136,21 +136,21 @@ NodoAVL_Auxiliar* AVL_Auxiliar::eliminarNodo(NodoAVL_Auxiliar* nodo, const std::
     return balancear(nodo);
 }
 
-void AVL_Auxiliar::eliminar(const std::string& isbn) {
+void IndiceISBN::eliminar(const std::string& isbn) {
     raiz = eliminarNodo(raiz, isbn);
 }
 
-//Busqueda
-NodoAVL* AVL_Auxiliar::buscar(const std::string& isbn) {
+// Búsqueda
+Libro* IndiceISBN::buscar(const std::string& isbn) {
     std::cout << "Buscando libro: " << isbn << std::endl;
-    NodoAVL_Auxiliar* actual = raiz;
+    NodoIndiceISBN* actual = raiz;
     while (actual) {
         if (isbn < actual->isbn)
             actual = actual->izquierdo;
         else if (isbn > actual->isbn)
             actual = actual->derecho;
         else
-            return actual->referencia;
+            return actual->libro;
     }
     return nullptr;
 }

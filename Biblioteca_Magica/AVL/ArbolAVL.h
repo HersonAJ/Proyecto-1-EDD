@@ -2,14 +2,14 @@
 #define PROYECTO1QT_ARBOLAVL_H
 
 #include "NodoAVL.h"
-#include "AVL_Auxiliar.h"
 #include <string>
 #include "ListaEncontrados.h"
+
+class IndiceISBN;
 
 class ArbolAVL {
 private:
     NodoAVL* raiz;
-    AVL_Auxiliar arbolAuxiliar;
 
     int altura(NodoAVL* nodo) const;
     int factorBalance(NodoAVL* nodo) const;
@@ -43,7 +43,7 @@ public:
     ~ArbolAVL();
 
     void insertar(Libro* libro);
-    void eliminarPorISBN(const std::string& isbn);
+    void eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGlobal);
     //NodoAVL* buscar(const std::string& titulo, const std::string& isbn);
     NodoAVL* buscar(const std::string& titulo, const std::string& isbn = "");
 

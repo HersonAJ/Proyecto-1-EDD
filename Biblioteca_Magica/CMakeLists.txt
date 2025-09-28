@@ -43,10 +43,10 @@ add_executable(Biblioteca_Magica main.cpp
         Modelos/Catalogo.cpp
         GUI/Vistas/AVL/AVLViewer.h
         GUI/Vistas/AVL/AVLViewer.cpp
-        AVL/NodoAVL_Auxiliar.h
-        AVL/AVL_Auxiliar.h
-        AVL/AVL_Auxiliar.cpp
         AVL/ListaEncontrados.h
+        AVL_Auxiliar/NodoIndiceISBN.h
+        AVL_Auxiliar/IndiceISBN.h
+        AVL_Auxiliar/ArbolAVL_Auxiliar.cpp
 )
 target_link_libraries(Biblioteca_Magica
         Qt5::Core

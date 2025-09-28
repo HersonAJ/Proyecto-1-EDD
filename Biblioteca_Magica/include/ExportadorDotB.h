@@ -5,24 +5,22 @@
 #include <sstream>
 #include <fstream>
 #include "../ArbolB/ArbolB.h"
-#include  "../ArbolB/NodoB.h"
-/*
+#include "../ArbolB/NodoB.h"
+
 class ExportarDotB {
 public:
     // Genera el contenido DOT como string.
     static std::string generar(const ArbolB& arbol) {
         std::ostringstream out;
-        out << "digraph BTree {\n";
-        out << "  rankdir=TB;\n";
-        out << "  node [shape=box, fontname=\"Helvetica\", fontsize=10];\n";
-        out << "  edge [arrowhead=normal];\n\n";
+        out << "digraph arbol_b {\n";
+        out << "  node [shape=box, style=filled, fontname=\"Helvetica\", fontsize=10];\n\n";
 
         int idCounter = 0;
         NodoB* raiz = arbol.getRaiz();
         if (raiz) {
             dibujarNodo(raiz, out, idCounter);
         } else {
-            out << "  vacio [label=\"Arbol B vacio\", shape=plaintext];\n";
+            out << "  vacio [label=\"Árbol B vacío\", shape=plaintext];\n";
         }
 
         out << "}\n";
@@ -40,38 +38,17 @@ public:
     }
 
 private:
-    // Escapa caracteres especiales para DOT.
-    static std::string escapar(const std::string& s) {
-        std::string r;
-        r.reserve(s.size() + 8);
-        for (size_t i = 0; i < s.size(); ++i) {
-            char c = s[i];
-            switch (c) {
-                case '\\': r += "\\\\"; break;
-                case '"':  r += "\\\""; break;
-                case '\n': r += "\\n";  break;
-                case '\r': /* skip    break;
-                default:   r += c;      break;
-            }
-        }
-        return r;
-    }
-
-    // Construye la etiqueta de un nodo con sus claves (una por línea).
+    // Construye la etiqueta de un nodo con sus claves separadas por coma.
     static std::string etiquetaNodo(NodoB* nodo) {
-        // Cada clave: "[fecha] titulo"
         std::ostringstream lbl;
         for (int i = 0; i < nodo->numClaves; ++i) {
-            if (i > 0) lbl << "\\n";
+            if (i > 0) lbl << ", ";
             if (nodo->claves[i] != nullptr) {
-                const std::string fecha = nodo->claves[i]->getFecha();
-                const std::string titulo = nodo->claves[i]->getTitulo();
-                lbl << "[" << escapar(fecha) << "] " << escapar(titulo);
+                lbl << nodo->claves[i]->fecha; // solo mostramos la fecha
             } else {
                 lbl << "<null>";
             }
         }
-        // Caso sin claves (defensivo)
         if (nodo->numClaves == 0) {
             lbl << "(sin claves)";
         }
@@ -99,5 +76,5 @@ private:
         return myId;
     }
 };
-*/
+
 #endif //BIBLIOTECA_MAGICA_EXPORTADORDOTB_H

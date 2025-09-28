@@ -39,10 +39,4 @@ NodoAVL* ArbolAVL::insertarNodo(NodoAVL* nodo, Libro* libro) {
 // Método público
 void ArbolAVL::insertar(Libro* libro) {
     raiz = insertarNodo(raiz, libro);
-
-    NodoAVL* nodoInsertado = buscar(libro->getTitulo(), libro->getIsbn());
-
-    if (nodoInsertado) {
-        arbolAuxiliar.insertar(libro->getIsbn(), nodoInsertado);
-    }
 }
