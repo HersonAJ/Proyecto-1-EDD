@@ -145,6 +145,7 @@ void LectorCSV::procesarArchivo() {
         arbol.insertar(libro);
         arbolB.insertar(libro);
         indiceISBN.insertar(libro->getIsbn(), libro);
+        arbolB.verificarDuplicados();
 
         //RecorridosAVL<NodoAVL>::inOrden(arbol.getRaiz());
 

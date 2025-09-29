@@ -25,6 +25,9 @@ private:
     void prestarDeDerecha(NodoB* nodo, int idx);
     void eliminarRecursivo(NodoB* nodo, int fecha);
 
+    EntradaFecha* buscarFechaGlobal(int fecha);
+    EntradaFecha* buscarFechaEnNodo(NodoB* nodo, int fecha);
+
 
 public:
     ArbolB() : raiz(nullptr) {}
@@ -44,5 +47,7 @@ public:
     void imprimir();
     NodoB* getRaiz() const { return raiz; }
     void imprimirParaPrueba();
+
+    void verificarDuplicados();
 };
 #endif // BIBLIOTECA_MAGICA_ARBOLB_H

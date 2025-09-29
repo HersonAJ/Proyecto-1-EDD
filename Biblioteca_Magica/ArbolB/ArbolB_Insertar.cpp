@@ -1,15 +1,24 @@
 #include "ArbolB.h"
 #include <iostream>
 #include <functional>
+#include <unordered_set>
+#include <queue>
 
-//destructor
 ArbolB::~ArbolB() {
     destruirRecursivo(raiz);
 }
 
 void ArbolB::destruirRecursivo(NodoB* nodo) {
     if (nodo) {
-        //si no es hoja, destruir hijos primero
+        // Primero destruir todas las entradas de este nodo
+        for (int i = 0; i < nodo->numClaves; i++) {
+            if (nodo->claves[i]) {
+                delete nodo->claves[i];
+                nodo->claves[i] = nullptr;
+            }
+        }
+
+        // Luego destruir recursivamente los hijos
         if (!nodo->esHoja) {
             for (int i = 0; i <= nodo->numClaves; i++) {
                 destruirRecursivo(nodo->hijos[i]);
@@ -20,10 +29,75 @@ void ArbolB::destruirRecursivo(NodoB* nodo) {
     }
 }
 
-//metodo publico de insercion
+// Buscar una fecha en TODO el árbol (incluyendo nodos internos)
+EntradaFecha* ArbolB::buscarFechaGlobal(int fecha) {
+    return buscarFechaEnNodo(raiz, fecha);
+}
+
+/*EntradaFecha* ArbolB::buscarFechaEnNodo(NodoB* nodo, int fecha) {
+    if (!nodo) return nullptr;
+
+    // Buscar en este nodo
+    for (int i = 0; i < nodo->numClaves; i++) {
+        if (nodo->claves[i]->fecha == fecha) {
+            return nodo->claves[i];
+        }
+    }
+
+    // Si no es hoja, buscar recursivamente en los hijos
+    if (!nodo->esHoja) {
+        int i = 0;
+        while (i < nodo->numClaves && fecha > nodo->claves[i]->fecha) {
+            i++;
+        }
+        return buscarFechaEnNodo(nodo->hijos[i], fecha);
+    }
+
+    return nullptr;
+}*/
+
+EntradaFecha* ArbolB::buscarFechaEnNodo(NodoB* nodo, int fecha) {
+    if (!nodo) return nullptr;
+
+    //BÚSQUEDA BINARIA dentro del nodo - O(log T)
+    int izquierda = 0;
+    int derecha = nodo->numClaves - 1;
+
+    while (izquierda <= derecha) {
+        int mid = izquierda + (derecha - izquierda) / 2;
+        int fechaActual = nodo->claves[mid]->fecha;
+
+        if (fechaActual == fecha) {
+            return nodo->claves[mid];  //Encontrado
+        } else if (fechaActual < fecha) {
+            izquierda = mid + 1;
+        } else {
+            derecha = mid - 1;
+        }
+    }
+
+    // Si no es hoja, buscar recursivamente en el hijo adecuado
+    if (!nodo->esHoja) {
+        // izquierda ahora indica la posición del hijo donde debería estar
+        return buscarFechaEnNodo(nodo->hijos[izquierda], fecha);
+    }
+
+    return nullptr;
+}
+
 void ArbolB::insertar(Libro* libro) {
     int fechaInt = libro->getFechaInt();
 
+    // PRIMERO buscar si la fecha ya existe en TODO el árbol
+    EntradaFecha* entradaExistente = buscarFechaGlobal(fechaInt);
+
+    if (entradaExistente) {
+        // Fecha existe → solo agregar ISBN
+        entradaExistente->indiceISBN.insertar(libro->getIsbn(), libro);
+        return;  // NO continuar con la inserción normal
+    }
+
+    // Fecha NO existe → proceder con inserción normal
     if (raiz == nullptr) {
         raiz = new NodoB(true);
         raiz->claves[0] = new EntradaFecha(fechaInt);
@@ -47,60 +121,63 @@ void ArbolB::insertar(Libro* libro) {
     }
 }
 
-//dividir hijo lleno
 void ArbolB::dividirHijo(NodoB* padre, int indice) {
     NodoB* hijo = padre->hijos[indice];
     NodoB* nuevoHijo = new NodoB(hijo->esHoja);
     nuevoHijo->numClaves = T - 1;
 
+    // TRANSFERIR claves al nuevo hijo
     for (int j = 0; j < T - 1; j++) {
         nuevoHijo->claves[j] = hijo->claves[j + T];
+        hijo->claves[j + T] = nullptr;
     }
 
     if (!hijo->esHoja) {
         for (int j = 0; j < T; j++) {
             nuevoHijo->hijos[j] = hijo->hijos[j + T];
+            hijo->hijos[j + T] = nullptr;
         }
     }
 
+    // Guardar la clave promovida y LIMPIARLA del hijo
+    EntradaFecha* clavePromovida = hijo->claves[T - 1];
+    hijo->claves[T - 1] = nullptr;
     hijo->numClaves = T - 1;
 
+    // Reorganizar hijos del padre
     for (int j = padre->numClaves; j >= indice + 1; j--) {
         padre->hijos[j + 1] = padre->hijos[j];
     }
     padre->hijos[indice + 1] = nuevoHijo;
 
+    // Reorganizar claves del padre
     for (int j = padre->numClaves - 1; j >= indice; j--) {
         padre->claves[j + 1] = padre->claves[j];
     }
 
-    padre->claves[indice] = hijo->claves[T - 1];
+    padre->claves[indice] = clavePromovida;
     padre->numClaves++;
 }
 
-// Insertar en nodo no lleno
 void ArbolB::insertarNoLleno(NodoB* nodo, int fecha, Libro* libro) {
     int i = nodo->numClaves - 1;
 
     if (nodo->esHoja) {
-        // Buscar si la fecha ya existe
-        int j = 0;
-        while (j < nodo->numClaves && fecha > nodo->claves[j]->fecha) {
-            j++;
+        // Este método SOLO se llama para FECHAS NUEVAS
+        int pos = 0;
+        while (pos < nodo->numClaves && fecha > nodo->claves[pos]->fecha) {
+            pos++;
         }
 
-        if (j < nodo->numClaves && nodo->claves[j]->fecha == fecha) {
-            //Fecha ya existe → insertar en su índice ISBN
-            nodo->claves[j]->indiceISBN.insertar(libro->getIsbn(), libro);
-        } else {
-            // Nueva fecha → desplazar y crear nueva entrada
-            for (int k = nodo->numClaves; k > j; k--) {
-                nodo->claves[k] = nodo->claves[k - 1];
-            }
-            nodo->claves[j] = new EntradaFecha(fecha);
-            nodo->claves[j]->indiceISBN.insertar(libro->getIsbn(), libro);
-            nodo->numClaves++;
+        // Desplazar y crear nueva entrada
+        for (int j = nodo->numClaves; j > pos; j--) {
+            nodo->claves[j] = nodo->claves[j - 1];
         }
+
+        nodo->claves[pos] = new EntradaFecha(fecha);
+        nodo->claves[pos]->indiceISBN.insertar(libro->getIsbn(), libro);
+        nodo->numClaves++;
+
     } else {
         // Buscar hijo adecuado
         while (i >= 0 && fecha < nodo->claves[i]->fecha) {
@@ -108,7 +185,7 @@ void ArbolB::insertarNoLleno(NodoB* nodo, int fecha, Libro* libro) {
         }
         i++;
 
-        if (nodo->hijos[i]->numClaves == 2*T - 1) {
+        if (nodo->hijos[i]->numClaves == 2 * T - 1) {
             dividirHijo(nodo, i);
             if (fecha > nodo->claves[i]->fecha) {
                 i++;
@@ -118,9 +195,8 @@ void ArbolB::insertarNoLleno(NodoB* nodo, int fecha, Libro* libro) {
     }
 }
 
-#include <queue>
+//debug
 
-// Método para imprimir el Árbol B y los ISBN de cada fecha
 void ArbolB::imprimirParaPrueba() {
     if (!raiz) {
         std::cout << "Árbol B vacío\n";
@@ -146,10 +222,9 @@ void ArbolB::imprimirParaPrueba() {
                 if (!entrada) continue;
 
                 std::cout << entrada->fecha;
-
                 // Mostrar también los ISBN de esta fecha
                 std::cout << " {ISBNs: ";
-                //índice ISBN en inOrden
+
                 std::function<void(NodoIndiceISBN*)> inOrden = [&](NodoIndiceISBN* nodo) {
                     if (!nodo) return;
                     inOrden(nodo->izquierdo);
@@ -163,7 +238,6 @@ void ArbolB::imprimirParaPrueba() {
             }
             std::cout << "] ";
 
-            // Encolar hijos existentes
             if (!actual->esHoja) {
                 for (int j = 0; j <= actual->numClaves; j++) {
                     if (actual->hijos[j]) {
@@ -175,4 +249,29 @@ void ArbolB::imprimirParaPrueba() {
         std::cout << "\n";
         nivel++;
     }
+}
+
+void ArbolB::verificarDuplicados() {
+    std::unordered_set<int> fechasVistas;
+    std::function<void(NodoB*)> verificarNodo = [&](NodoB* nodo) {
+        if (!nodo) return;
+
+        for (int i = 0; i < nodo->numClaves; i++) {
+            int fecha = nodo->claves[i]->fecha;
+            if (fechasVistas.count(fecha)) {
+                std::cout << "DUPLICADO ENCONTRADO: " << fecha << std::endl;
+            } else {
+                fechasVistas.insert(fecha);
+            }
+        }
+
+        if (!nodo->esHoja) {
+            for (int i = 0; i <= nodo->numClaves; i++) {
+                verificarNodo(nodo->hijos[i]);
+            }
+        }
+    };
+
+    verificarNodo(raiz);
+    std::cout << "Verificación completada. " << fechasVistas.size() << " fechas únicas." << std::endl;
 }
