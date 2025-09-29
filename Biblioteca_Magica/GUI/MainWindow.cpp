@@ -314,6 +314,7 @@ void MainWindow::onEliminarLibro() {
 
     // Eliminar directamente en el AVL
     arbol.eliminarPorISBN(isbnStr, indiceISBN);
+    arbolB.eliminarPorISBN(isbnStr, indiceISBN);
 
     // Eliminar también en el Árbol B (recorriendo por ISBN)
     try {

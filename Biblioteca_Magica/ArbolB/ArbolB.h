@@ -4,6 +4,8 @@
 #include "NodoB.h"
 #include "ListaLibros.h"
 
+class IndiceISBN;
+
 class ArbolB {
 private:
     NodoB* raiz;
@@ -13,6 +15,16 @@ private:
     void insertarNoLleno(NodoB* nodo, int fecha, Libro* libro);
     void buscarRangoRecursivo(NodoB* nodo, int inicio, int fin, ListaLibros& resultados);
     void destruirRecursivo(NodoB* nodo);
+
+    // helpers para eliminación
+    EntradaFecha* obtenerMaximo(NodoB* nodo);
+    EntradaFecha* obtenerMinimo(NodoB* nodo);
+
+    void fusionar(NodoB* nodo, int idx);
+    void prestarDeIzquierda(NodoB* nodo, int idx);
+    void prestarDeDerecha(NodoB* nodo, int idx);
+    void eliminarRecursivo(NodoB* nodo, int fecha);
+
 
 public:
     ArbolB() : raiz(nullptr) {}
@@ -27,6 +39,7 @@ public:
     // Búsqueda individual por fecha (devuelve un libro cualquiera de esa fecha, o nullptr si no existe)
     Libro* buscarPorFecha(const std::string& fecha);
 
+    void eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGlobal);
     void eliminar(const std::string& fecha);
     void imprimir();
     NodoB* getRaiz() const { return raiz; }
