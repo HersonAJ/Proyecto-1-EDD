@@ -24,7 +24,7 @@ private slots:
     void onExportarB();
     void onBuscarPorTitulo();
     void onEliminarLibro();
-    //void onBuscarPorFecha();
+    void onBuscarPorFecha();
 
 private:
     void createMenu();

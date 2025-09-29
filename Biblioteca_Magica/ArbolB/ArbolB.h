@@ -13,7 +13,7 @@ private:
     // Métodos internos que trabajan con fecha como int
     void dividirHijo(NodoB* padre, int i);
     void insertarNoLleno(NodoB* nodo, int fecha, Libro* libro);
-    void buscarRangoRecursivo(NodoB* nodo, int inicio, int fin, ListaLibros& resultados);
+    void buscarPorRangoRecursivo(NodoB* nodo, int inicio, int fin, ListaLibros* resultados);
     void destruirRecursivo(NodoB* nodo);
 
     // helpers para eliminación
@@ -27,6 +27,7 @@ private:
 
     EntradaFecha* buscarFechaGlobal(int fecha);
     EntradaFecha* buscarFechaEnNodo(NodoB* nodo, int fecha);
+    void recorrerAVLyAgregarLibros(NodoIndiceISBN* nodoAVL, ListaLibros* resultados);
 
 
 public:
@@ -37,7 +38,7 @@ public:
     void insertar(Libro* libro);
 
     // Búsqueda por rango de fechas (devuelve lista de libros)
-    ListaLibros buscarPorRangoFechas(const std::string& inicio, const std::string& fin);
+    ListaLibros* buscarPorRango(int fechaInicio, int fechaFin);
 
     // Búsqueda individual por fecha (devuelve un libro cualquiera de esa fecha, o nullptr si no existe)
     Libro* buscarPorFecha(const std::string& fecha);

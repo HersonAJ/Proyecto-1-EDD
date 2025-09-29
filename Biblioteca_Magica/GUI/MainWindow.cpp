@@ -96,9 +96,9 @@ void MainWindow::createMenu() {
     QAction *actionBuscarTitulo = new QAction("Por título", this);
     connect(actionBuscarTitulo, &QAction::triggered, this, &MainWindow::onBuscarPorTitulo);
 
-    /*QAction* actionBuscarFecha = new QAction("Por año de publicacion rango", this);
+    QAction* actionBuscarFecha = new QAction("Por año de publicacion rango", this);
     connect(actionBuscarFecha, &QAction::triggered, this, &MainWindow::onBuscarPorFecha);
-    menuBuscar->addAction(actionBuscarFecha);*/
+    menuBuscar->addAction(actionBuscarFecha);
     menuBuscar->addAction(actionBuscarTitulo);
     menuBuscar->addAction("Por ISBN");
     menuBuscar->addAction("Por género");
@@ -359,21 +359,21 @@ void MainWindow::onExportarB() {
     }
 }
 
-/*
+
 void MainWindow::onBuscarPorFecha() {
-   /* if (!arbolB.getRaiz()) {
+    if (!arbolB.getRaiz()) {
         appendLog("El arbol B esta vacio. Cargue datos antes de buscar.", "error");
         return;
     }
 
     //dialogo para el año inicial
     bool ok1;
-    int inicio = QInputDialog::getInt(this, "Rango de fechas - Inicio", "Año inicial: ", 2000, 0, 3000, 1, &ok1);
+    int inicio = QInputDialog::getInt(this, "Rango de fechas - Inicio", "Año inicial: ", 2000, 0, 100000, 1, &ok1);
     if (!ok1) return;;
 
     //dialogo para el año final
     bool ok2;
-    int fin = QInputDialog::getInt(this, "Rango de fechas - Fin", "Año final: ", 2020, inicio, 3000, 1, &ok2);
+    int fin = QInputDialog::getInt(this, "Rango de fechas - Fin", "Año final: ", 2020, inicio, 100000, 1, &ok2);
     if (!ok2) return;
 
     //validar rango
@@ -384,30 +384,35 @@ void MainWindow::onBuscarPorFecha() {
     }
 
     //realizar busqueda por rango
-    ListaLibros resultados = arbolB.buscarPorRango(inicio, fin);
+    ListaLibros* resultados = arbolB.buscarPorRango(inicio, fin);
 
-    if (resultados.getTamaño() > 0) {
-        std::string mensaje = "Se encontraron " + std::to_string(resultados.getTamaño()) + " Libros entre " + std::to_string(inicio) + " y " +
+    if (resultados->getTamaño() > 0) {
+        std::string encabezado = "\n\n Se encontraron " + std::to_string(resultados->getTamaño()) + " Libros entre " + std::to_string(inicio) + " y " +
             std::to_string(fin) + ":\n";
+        appendLog(encabezado, "warning");
 
         //recorrer resultados
-        Nodo* actual = resultados.getCabeza();
-        while (actual != nullptr) {
-            mensaje += "- " + actual->libro->toString() + "\n";
-            actual = actual->siguiente;
+        std::string mensaje = "";
+        ListaLibros::Interador iter = resultados->obtenerIterador();
+        while (iter.tieneSiguiente()) {
+            Libro* libro = iter.siguiente();
+            mensaje += "- " + libro->toString() + "\n";
         }
 
         appendLog(mensaje, "ok");
 
         //Mostrar resultado en QMessageBox
-        QMessageBox::information(this, "Resultado de la busqueda ", QString::fromStdString("Encontrados: " + std::to_string(resultados.getTamaño()) +
+        QMessageBox::information(this, "Resultado de la busqueda ", QString::fromStdString("Encontrados: " + std::to_string(resultados->getTamaño()) +
             "libros\nUse el log para ver detalles"));
     } else {
         appendLog("No se encontraron libros entre " + std::to_string(inicio) + " y " + std::to_string(fin), "error");
         QMessageBox::information(this, "Sin resultados", "No se encontraron libros en ese rango de fechas.");
     }
+
+    delete resultados;
 }
 
+    /*
 void MainWindow::debugMostrarArbolB() {
     /*std::stringstream ss;
     ss << "contenido del arbol B inOrden;\n";

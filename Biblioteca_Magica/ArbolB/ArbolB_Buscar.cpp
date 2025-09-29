@@ -1,67 +1,48 @@
+#include "ListaLibros.h"
 #include "ArbolB.h"
-#include <string>
-/*
-ListaLibros ArbolB::buscarPorRango(int inicio, int fin) {
-    ListaLibros resultados;
-    if (raiz != nullptr) {
-        buscarRangoRecursivo(raiz, inicio, fin, resultados);
-    }
+
+ListaLibros *ArbolB::buscarPorRango(int fechaInicio, int fechaFin) {
+    ListaLibros* resultados = new ListaLibros();
+    buscarPorRangoRecursivo(raiz, fechaInicio, fechaFin, resultados);
     return resultados;
 }
 
-void ArbolB::buscarRangoRecursivo(NodoB *nodo, int inicio, int fin, ListaLibros& resultados) {
+void ArbolB::buscarPorRangoRecursivo(NodoB *nodo, int fechaInicio, int fechaFin, ListaLibros *resultados) {
+    if (!nodo) return;
+
     int i = 0;
 
-    // encontrar el primer índice donde la clave puede estar en el rango
+    //recorrer todas las claves de este nodo
     while (i < nodo->numClaves) {
-        int añoActual;
-        try {
-            añoActual = std::stoi(nodo->claves[i]->getFecha());
-        } catch (const std::exception& e) {
-            añoActual = 0;
+        int fechaActual = nodo->claves[i]->fecha;
+
+        //si la fecha esta dentro del rango, procesar todos sus libros
+        if (fechaActual >= fechaInicio && fechaActual <= fechaFin) {
+            //recorrer el avl interno de isbn de esta fecha y agregarlos a la lista
+            recorrerAVLyAgregarLibros(nodo->claves[i]->indiceISBN.getRaiz(), resultados);
         }
 
-        if (añoActual >= inicio) {
-            break; // aquí se corrige
+        //si no es hoja podria haber mas claves en el ranfo en el hijo i
+        if (!nodo->esHoja && fechaActual >= fechaInicio) {
+            buscarPorRangoRecursivo(nodo->hijos[i], fechaInicio, fechaFin, resultados);
         }
         i++;
     }
 
-    // si no es hoja, recorrer los hijos relevantes
+    //ultimo hijo para claves mayores a la ultima clave de este nodo
     if (!nodo->esHoja) {
-        for (int j = 0; j <= i; j++) {
-            if (nodo->hijos[j] != nullptr) {
-                buscarRangoRecursivo(nodo->hijos[j], inicio, fin, resultados);
-            }
-        }
-    }
-
-    // procesar las claves de este nodo que están en el rango
-    while (i < nodo->numClaves) {
-        int añoActual;
-        try {
-            añoActual = std::stoi(nodo->claves[i]->getFecha());
-        } catch (const std::exception& e) {
-            añoActual = 0;
-        }
-
-        if (añoActual > fin) {
-            break; // fuera del rango, ya no sigo
-        }
-
-        if (añoActual >= inicio) {
-            resultados.insertar(nodo->claves[i]);
-        }
-        i++;
-    }
-
-    // si no es hoja, recorrer los hijos restantes
-    if (!nodo->esHoja) {
-        for (int j = i; j <= nodo->numClaves; j++) {
-            if (nodo->hijos[j] != nullptr) {
-                buscarRangoRecursivo(nodo->hijos[j], inicio, fin, resultados);
-            }
-        }
+        buscarPorRangoRecursivo(nodo->hijos[i], fechaInicio, fechaFin, resultados);
     }
 }
-*/
+
+void ArbolB::recorrerAVLyAgregarLibros(NodoIndiceISBN* nodoAVL, ListaLibros* resultados) {
+    if (!nodoAVL) return;
+
+    //recorrido in-orden del avl para agregar toodos los libros
+    recorrerAVLyAgregarLibros(nodoAVL->izquierdo, resultados);
+
+    resultados->insertar(nodoAVL->libro);
+
+    recorrerAVLyAgregarLibros(nodoAVL->derecho, resultados);
+}
+
