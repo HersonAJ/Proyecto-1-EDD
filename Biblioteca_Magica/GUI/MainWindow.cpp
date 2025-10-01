@@ -175,7 +175,7 @@ void MainWindow::onCargarArchivo() {
 
     appendLog("Cargando archivo: " + rutaArchivo, "info");
 
-    LectorCSV lector(rutaArchivo, arbol, arbolB, indiceISBN);
+    LectorCSV lector(rutaArchivo, arbol, arbolB, indiceISBN, arbolBPlus);
     lector.setLogger([this](const std::string &msg) {
         // Detectar si es error o no
         if (msg.rfind("Error", 0) == 0) { // empieza con "Error"

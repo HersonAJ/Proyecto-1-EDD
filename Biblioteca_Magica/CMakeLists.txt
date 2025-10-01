@@ -53,6 +53,10 @@ add_executable(Biblioteca_Magica main.cpp
         ArbolB+/NodoHoja.h
         ArbolB+/NodoBPlus.h
         ArbolB+/ArbolBPlus.h
+        ArbolB+/B+_Insertar.cpp
+        ArbolB+/ArbolBPlus.cpp
+        ArbolB+/NodoHoja.cpp
+        ArbolB+/NodoInterno.cpp
 )
 target_link_libraries(Biblioteca_Magica
         Qt5::Core

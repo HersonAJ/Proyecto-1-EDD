@@ -7,6 +7,7 @@
 #include  "../ArbolB/ArbolB.h"
 #include "../include/Recorridos.h"
 #include "../AVL_Auxiliar/IndiceISBN.h"
+#include "../ArbolB+/ArbolBPlus.h"
 
 class LectorCSV {
 private:
@@ -14,6 +15,7 @@ private:
     ArbolAVL& arbol;
     ArbolB& arbolB;
     IndiceISBN& indiceISBN;
+    ArbolBPlus& arbolBPlus;
     std::function<void(const std::string &)> logger;
     int contarCampos(const std::string& linea, char delim);
     bool tiene5Campos(const std::string& linea, char delim);
@@ -23,7 +25,7 @@ private:
         if (logger) logger(msg);
     }
 public:
-    LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB, IndiceISBN& indice);
+    LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB, IndiceISBN& indice, ArbolBPlus& arbolBPlus);
     void procesarArchivo();
     void setLogger(std::function<void(const std::string&)> logFunc) {
         logger = logFunc;

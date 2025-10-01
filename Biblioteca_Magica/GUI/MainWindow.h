@@ -11,6 +11,7 @@
 #include "Vistas/AVL/AVLViewer.h"
 #include "Vistas/B/BViewer.h"
 #include "../AVL_Auxiliar/IndiceISBN.h"
+#include "../ArbolB+/ArbolBPlus.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -32,6 +33,7 @@ private:
    ArbolAVL arbol;
     ArbolB arbolB;
     IndiceISBN indiceISBN;
+    ArbolBPlus arbolBPlus;
     void appendLog(const std::string &mensaje, const QString &tipo = "info");
     void debugMostrarArbolB();
 
