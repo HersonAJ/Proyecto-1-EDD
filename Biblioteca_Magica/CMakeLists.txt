@@ -57,6 +57,9 @@ add_executable(Biblioteca_Magica main.cpp
         ArbolB+/ArbolBPlus.cpp
         ArbolB+/NodoHoja.cpp
         ArbolB+/NodoInterno.cpp
+        include/ExportadorDotB+.h
+        GUI/Vistas/B+/BPlusViewer.h
+        GUI/Vistas/B+/BPlusViewer.cpp
 )
 target_link_libraries(Biblioteca_Magica
         Qt5::Core

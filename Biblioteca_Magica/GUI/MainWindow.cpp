@@ -16,6 +16,7 @@
 #include "../include/ExportadorDotB.h"
 #include "Vistas/AVL/AVLViewer.h"
 #include "Vistas/B/BViewer.h"
+#include "Vistas/B+/BPlusViewer.h"
 #include  <QLabel>
 #include  <QTabWidget>
 
@@ -47,6 +48,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     bViewer = new BViewer(&arbolB, this);
     tabs->addTab(bViewer, "Arbol B");
+
+    bPlusViewer = new BPlusViewer(&arbolBPlus, this);
+    tabs->addTab(bPlusViewer, "BPlus");
 
     //espacio para visualizar los otros arboles
 
@@ -119,10 +123,17 @@ void MainWindow::createMenu() {
         tabs->setCurrentWidget(bViewer);
     });
 
+    QAction *actionVerBPlus = new QAction("Ver arbol B+", this);
+    connect(actionVerBPlus, &QAction::triggered, this, [this]() {
+        bPlusViewer->actualizarVista();
+        tabs->setCurrentWidget(bPlusViewer);
+    });
+
     menuVisualizacion->addAction(actionVerB);
     menuVisualizacion->addAction(actionVerAVL);
+    menuVisualizacion->addAction(actionVerBPlus);
 
-    menuVisualizacion->addAction("Ver Árbol B+");
+    //menuVisualizacion->addAction("Ver Árbol B+");
     menuVisualizacion->addSeparator();
     menuVisualizacion->addAction("Comparar rendimiento");
 

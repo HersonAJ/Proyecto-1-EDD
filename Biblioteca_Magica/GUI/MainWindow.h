@@ -12,6 +12,7 @@
 #include "Vistas/B/BViewer.h"
 #include "../AVL_Auxiliar/IndiceISBN.h"
 #include "../ArbolB+/ArbolBPlus.h"
+#include "Vistas/B+/BPlusViewer.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -40,6 +41,7 @@ private:
     QTabWidget* tabs;
     AVLViewer* avlViewer;
     BViewer* bViewer;
+    BPlusViewer* bPlusViewer;
 };
 
 #endif // MAINWINDOW_H
