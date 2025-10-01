@@ -42,7 +42,7 @@ void ArbolBPlus::insertar(Libro* libro) {
 
     bool generoExiste = (pos < hoja->numClaves && hoja->entradas[pos].genero == genero);
 
-    if (!generoExiste && hoja->numClaves == 2 * T_BPLUS - 1) {
+    if (!generoExiste && hoja->numClaves == 2 * T_BPLUS - 1) { //5==5 ya esta lleno entonces se divide
         // La hoja está llena y necesitamos agregar un NUEVO género
         dividirHoja(hoja);
         // Después de dividir, buscar la hoja correcta nuevamente
@@ -50,7 +50,7 @@ void ArbolBPlus::insertar(Libro* libro) {
     }
 
     // Ahora insertar seguro
-    insertarEnHoja(hoja, libro);
+    insertarEnHoja(hoja, libro);//luego de la division se hace la insercion segura previo a que haya desbordamiento
 }
 
 // Buscar hoja adecuada
@@ -97,7 +97,7 @@ void ArbolBPlus::insertarEnHoja(NodoHoja* hoja, Libro* libro) {
 
 // Dividir hoja
 void ArbolBPlus::dividirHoja(NodoHoja* hoja) {
-    int mitad = hoja->numClaves / 2;
+    int mitad = hoja->numClaves / 2;//clave que sube en este caso 5/2 = 2 entonces es la mitad exacta
 
     NodoHoja* nuevaHoja = new NodoHoja();
     nuevaHoja->numClaves = hoja->numClaves - mitad;
@@ -131,6 +131,11 @@ void ArbolBPlus::dividirHoja(NodoHoja* hoja) {
     } else {
         // Insertar en el padre existente
         NodoInterno* padre = buscarPadre(raiz, hoja);
+
+        if (!padre) {
+            std::cout << "Error: No se encontro padre de la hoja" << std::endl;
+            return;
+        }
         int i = 0;
         while (i < padre->numClaves && claveSubir > padre->claves[i]) {
             i++;
@@ -176,6 +181,12 @@ void ArbolBPlus::dividirInterno(NodoInterno* interno) {
         raiz = nuevaRaiz;
     } else {
         NodoInterno* padre = buscarPadre(raiz, interno);
+
+        if (!padre) {
+            std::cout << "Error: No se encontro padre del nodo interno" << std::endl;
+            return;
+        }
+
         int i = 0;
         while (i < padre->numClaves && claveSubir > padre->claves[i]) {
             i++;
