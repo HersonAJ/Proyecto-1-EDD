@@ -60,6 +60,7 @@ add_executable(Biblioteca_Magica main.cpp
         include/ExportadorDotB+.h
         GUI/Vistas/B+/BPlusViewer.h
         GUI/Vistas/B+/BPlusViewer.cpp
+        ArbolB+/B+_Buscar.cpp
 )
 target_link_libraries(Biblioteca_Magica
         Qt5::Core

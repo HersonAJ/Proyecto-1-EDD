@@ -6,6 +6,8 @@
 #include "NodoInterno.h"
 #include "NodoHoja.h"
 #include "../Modelos/Libro.h"
+#include "../ArbolB/ListaLibros.h"
+#include "../AVL_Auxiliar/IndiceISBN.h"
 
 class ArbolBPlus {
 private:
@@ -20,19 +22,23 @@ private:
 
     void liberarRecursivo(NodoBPlus* nodo);
     NodoInterno* buscarPadre(NodoBPlus* actual, NodoBPlus* hijo) const;
+    void recorrerAVLyAgregarLibros(NodoIndiceISBN* nodoAVL, ListaLibros* resultados) const;
+    bool buscarGeneroAux(const std::string& genero, NodoHoja** hojaOut, int& pos) const;//metodo auxiliar para la eliminacion
 
 public:
     ArbolBPlus();
     ~ArbolBPlus();
 
-    // Inserción pública
-    void insertar(Libro* libro);
+    void insertarSoloGenero(const std::string& genero);
+    void insertarLibroEnGenero(Libro* libro);
 
     // Accesores básicos
     NodoBPlus* getRaiz() const { return raiz; }
     NodoHoja* getPrimeraHoja() const { return primeraHoja; }
 
     static void recorrerEstructura(NodoBPlus* nodo, int nivel = 0);
+    void eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGeneral);
+    ListaLibros* buscarPorGenero(const std::string& genero) const; //implementaicion para la accion de busqueda del usuario
 };
 
 #endif // BIBLIOTECA_MAGICA_ARBOLBPLUS_H

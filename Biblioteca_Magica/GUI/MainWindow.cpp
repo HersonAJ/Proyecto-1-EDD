@@ -102,10 +102,14 @@ void MainWindow::createMenu() {
 
     QAction* actionBuscarFecha = new QAction("Por año de publicacion rango", this);
     connect(actionBuscarFecha, &QAction::triggered, this, &MainWindow::onBuscarPorFecha);
+
+    QAction* actionBuscarPorGenero = new QAction("Por Genero", this);
+    connect(actionBuscarPorGenero, &QAction::triggered, this, &MainWindow::onBuscarPorGenero);
+
     menuBuscar->addAction(actionBuscarFecha);
     menuBuscar->addAction(actionBuscarTitulo);
     menuBuscar->addAction("Por ISBN");
-    menuBuscar->addAction("Por género");
+    menuBuscar->addAction(actionBuscarPorGenero);
     menuLibros->addMenu(menuBuscar);
 
     // ===== Menú Visualización =====
@@ -423,18 +427,48 @@ void MainWindow::onBuscarPorFecha() {
     delete resultados;
 }
 
-    /*
-void MainWindow::debugMostrarArbolB() {
-    /*std::stringstream ss;
-    ss << "contenido del arbol B inOrden;\n";
-    std::streambuf* oldCoutBuffer = std::cout.rdbuf();
-    std::cout.rdbuf(ss.rdbuf());
+void MainWindow::onBuscarPorGenero() {
+    if (arbolBPlus.getRaiz() == nullptr) {
+        appendLog("El árbol B+ está vacío. Cargue datos antes de buscar.", "error");
+        return;
+    }
 
-    //RecorridosB::inOrden(arbolB.getRaiz());
-    //RecorridosB2::imprimirEstructura(arbolB.getRaiz());
-    ArbolB3::imprimir(arbolB.getRaiz());
+    // Diálogo para ingresar el género
+    bool ok;
+    QString generoQ = QInputDialog::getText(this, "Buscar por género",
+                                            "Ingrese el género:", QLineEdit::Normal,
+                                            "", &ok);
+    if (!ok || generoQ.isEmpty()) return;
 
-    std::cout.rdbuf(oldCoutBuffer);
+    std::string genero = generoQ.toStdString();
 
-    appendLog(ss.str(), "debug");
-}*/
+    // Realizar búsqueda en el B+
+    ListaLibros* resultados = arbolBPlus.buscarPorGenero(genero);
+
+    if (resultados->getTamaño() > 0) {
+        std::string encabezado = "\n\nSe encontraron " + std::to_string(resultados->getTamaño()) +
+                                 " libros en el género '" + genero + "':\n";
+        appendLog(encabezado, "warning");
+
+        // Recorrer resultados
+        std::string mensaje;
+        ListaLibros::Interador iter = resultados->obtenerIterador();
+        while (iter.tieneSiguiente()) {
+            Libro* libro = iter.siguiente();
+            mensaje += "- " + libro->toString() + "\n";
+        }
+
+        appendLog(mensaje, "ok");
+
+        QMessageBox::information(this, "Resultado de la búsqueda",
+                                 QString::fromStdString("Encontrados: " +
+                                 std::to_string(resultados->getTamaño()) +
+                                 " libros\n"));
+    } else {
+        appendLog("No se encontraron libros en el género '" + genero + "'", "error");
+        QMessageBox::information(this, "Sin resultados",
+                                 QString::fromStdString("No se encontraron libros en el género '" + genero + "'."));
+    }
+
+    delete resultados;
+}

@@ -29,12 +29,10 @@ void ArbolBPlus::liberarRecursivo(NodoBPlus* nodo) {
     }
 }
 
-// Inserción pública
-void ArbolBPlus::insertar(Libro* libro) {
-    std::string genero = libro->getGenero();
+void ArbolBPlus::insertarSoloGenero(const std::string &genero) {
     NodoHoja* hoja = buscarHoja(genero);
 
-    // Primero buscar si el género ya existe
+    //buscar si el genero ya existe
     int pos = 0;
     while (pos < hoja->numClaves && genero > hoja->entradas[pos].genero) {
         pos++;
@@ -42,15 +40,28 @@ void ArbolBPlus::insertar(Libro* libro) {
 
     bool generoExiste = (pos < hoja->numClaves && hoja->entradas[pos].genero == genero);
 
-    if (!generoExiste && hoja->numClaves == 2 * T_BPLUS - 1) { //5==5 ya esta lleno entonces se divide
-        // La hoja está llena y necesitamos agregar un NUEVO género
+    if (!generoExiste && hoja->numClaves == 2 * T_BPLUS - 1) {
         dividirHoja(hoja);
-        // Después de dividir, buscar la hoja correcta nuevamente
         hoja = buscarHoja(genero);
     }
 
-    // Ahora insertar seguro
-    insertarEnHoja(hoja, libro);//luego de la division se hace la insercion segura previo a que haya desbordamiento
+    //insertar solo el genero en el B+, no los libros
+    if (!generoExiste) {
+        int i = 0;
+        while (i < hoja->numClaves && genero > hoja->entradas[i].genero) {
+            i++;
+        }
+
+        //desplazar entradas
+        for (int j = hoja->numClaves; j > i; j--) {
+            hoja->entradas[j] = hoja->entradas[j - 1];
+        }
+
+        //insertar entrada solo de genero
+        hoja->entradas[i].genero = genero;
+        //indiceISBN (avl) vacio
+        hoja->numClaves++;
+    }
 }
 
 // Buscar hoja adecuada
@@ -104,7 +115,7 @@ void ArbolBPlus::dividirHoja(NodoHoja* hoja) {
 
     // Copiar la mitad superior a la nueva hoja
     for (int i = 0; i < nuevaHoja->numClaves; i++) {
-        nuevaHoja->entradas[i] = hoja->entradas[mitad + i];
+        nuevaHoja->entradas[i].genero = hoja->entradas[mitad + i]. genero;
     }
 
     hoja->numClaves = mitad;
@@ -218,4 +229,18 @@ NodoInterno* ArbolBPlus::buscarPadre(NodoBPlus* actual, NodoBPlus* hijo) const {
         if (posible) return posible;
     }
     return nullptr;
+}
+
+void ArbolBPlus::insertarLibroEnGenero(Libro *libro) {
+    std::string genero = libro->getGenero();
+    NodoHoja* hoja = buscarHoja(genero);
+
+    //buscar la entrada exacta al genero
+    for (int i = 0; i < hoja->numClaves; i++) {
+        if (hoja->entradas[i].genero == genero) {
+            //insetar en el indiceISBN de esta entrada espeficica
+            hoja->entradas[i].indiceISBN.insertar(libro->getIsbn(), libro);
+            break;
+        }
+    }
 }

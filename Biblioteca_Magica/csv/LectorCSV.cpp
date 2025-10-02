@@ -5,6 +5,7 @@
 #include "../Modelos/Libro.h"
 #include "../AVL/ArbolAVL.h"
 #include "../include/Recorridos.h"
+#include "../ArbolB/ListaLibros.h"
 
 std::string* parseCSVLine(const std::string& linea, int& cantidad) {
     std::string* campos = new std::string[10];
@@ -93,7 +94,7 @@ void LectorCSV::procesarArchivo() {
 
     std::string linea;
     int numLinea = 0;
-
+    ListaLibros librosTemporales;
     while (std::getline(archivo, linea)) {
         numLinea++;
 
@@ -140,12 +141,13 @@ void LectorCSV::procesarArchivo() {
 
         // Crear libro y guardar en ambos árboles
         Libro* libro = new Libro(titulo, isbn, genero, fecha, autor);
+        librosTemporales.insertar(libro);
 
         std::cout << "Insertando en Árbol B - Fecha: '" << fecha << "' -> " << libro->getFechaInt() << std::endl;
+        arbolBPlus.insertarSoloGenero(genero);
         arbol.insertar(libro);
         arbolB.insertar(libro);
         indiceISBN.insertar(libro->getIsbn(), libro);
-        arbolBPlus.insertar(libro);
         arbolB.verificarDuplicados();
 
         ArbolBPlus::recorrerEstructura(arbolBPlus.getRaiz());
@@ -156,5 +158,10 @@ void LectorCSV::procesarArchivo() {
     }
 
     archivo.close();
+    ListaLibros::Interador iter = librosTemporales.obtenerIterador();
+    while (iter.tieneSiguiente()) {
+        Libro* libro = iter.siguiente();
+        arbolBPlus.insertarLibroEnGenero(libro);
+    }
     log("Lectura finalizada");
 }
