@@ -4,12 +4,12 @@
 #include "../include/Nodo.h"
 #include "../Modelos/Libro.h"
 
-class ListaEcontados {
+class ListaEncontados {
     private:
     Nodo* cabeza;
 
     public:
-    ListaEcontados() : cabeza(nullptr) {}
+    ListaEncontados() : cabeza(nullptr) {}
 
     void agregar(Libro* libro) {
         Nodo* nuevo = new Nodo(libro);
@@ -26,7 +26,7 @@ class ListaEcontados {
 
     Nodo* getCabeza() const { return cabeza; }
 
-    ~ListaEcontados() {
+    ~ListaEncontados() {
         Nodo* actual = cabeza;
         while (actual) {
             Nodo* temp = actual;

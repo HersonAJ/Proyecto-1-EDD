@@ -20,13 +20,13 @@ Libro* ArbolAVL::buscarPorTituloRecursivo(NodoAVL* nodo, const std::string& titu
     }
 }
 
-ListaEcontados* ArbolAVL::buscarTodosPorTitulo(const std::string& titulo) {
-    ListaEcontados* lista = new ListaEcontados();
+ListaEncontados* ArbolAVL::buscarTodosPorTitulo(const std::string& titulo) {
+    ListaEncontados* lista = new ListaEncontados();
     buscarTodosPorTituloRecursivo(raiz, titulo, lista);
     return lista;
 }
 
-void ArbolAVL::buscarTodosPorTituloRecursivo(NodoAVL* nodo, const std::string& titulo, ListaEcontados* lista) {
+void ArbolAVL::buscarTodosPorTituloRecursivo(NodoAVL* nodo, const std::string& titulo, ListaEncontados* lista) {
     if (!nodo) return ;
 
     //recorrido inorden para encontrar todos

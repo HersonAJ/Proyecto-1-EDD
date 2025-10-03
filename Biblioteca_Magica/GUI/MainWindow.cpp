@@ -149,23 +149,13 @@ void MainWindow::createMenu() {
 
     //menuVisualizacion->addAction("Ver Árbol B+");
     menuVisualizacion->addSeparator();
-    menuVisualizacion->addAction("Comparar rendimiento");
 
-    // ===== Menú Herramientas =====
-    QMenu *menuHerramientas = new QMenu("Herramientas", this);
-    menuHerramientas->addAction("Mostrar estadísticas");
-    menuHerramientas->addAction("Mostrar log");
 
-    // ===== Menú Ayuda =====
-    QMenu *menuAyuda = new QMenu("Ayuda", this);
-    menuAyuda->addAction("Acerca de");
 
     // Agregar menús a la barra
     menuBar->addMenu(menuArchivo);
     menuBar->addMenu(menuLibros);
     menuBar->addMenu(menuVisualizacion);
-    menuBar->addMenu(menuHerramientas);
-    menuBar->addMenu(menuAyuda);
 
     setMenuBar(menuBar);
 }
@@ -189,21 +179,16 @@ void MainWindow::appendLog(const std::string &mensaje, const QString &tipo) {
 
 void MainWindow::onCargarArchivo() {
     QString ruta = QFileDialog::getOpenFileName(
-        this,
-        "Seleccionar archivo CSV",
-        "",
-        "Archivo CSV (*.csv);;Todos los archivos(*)");
+        this, "Seleccionar archivo CSV", "", "Archivo CSV (*.csv);;Todos los archivos(*)");
 
     if (ruta.isEmpty()) return;
 
     std::string rutaArchivo = ruta.toStdString();
-
     appendLog("Cargando archivo: " + rutaArchivo, "info");
 
     LectorCSV lector(rutaArchivo, arbol, arbolB, indiceISBN, arbolBPlus, catalogoGlobal);
     lector.setLogger([this](const std::string &msg) {
-        // Detectar si es error o no
-        if (msg.rfind("Error", 0) == 0) { // empieza con "Error"
+        if (msg.rfind("Error", 0) == 0) {
             appendLog(msg, "error");
         } else {
             appendLog(msg, "ok");
@@ -212,28 +197,7 @@ void MainWindow::onCargarArchivo() {
 
     lector.procesarArchivo();
 
-    // NUEVO: Debug del Árbol B
-    appendLog("=== ESTRUCTURA DEL ÁRBOL B (DEBUG) ===", "info");
-
-    // Crear un string temporal para capturar la salida
-    std::stringstream buffer;
-    std::streambuf* old = std::cout.rdbuf(buffer.rdbuf());
-
-    // Llamar a la función de impresión
-    arbolB.imprimirParaPrueba();
-
-    // Restaurar cout y obtener el resultado
-    std::cout.rdbuf(old);
-    std::string resultado = buffer.str();
-
-    // Mostrar en el log línea por línea
-    std::istringstream stream(resultado);
-    std::string linea;
-    while (std::getline(stream, linea)) {
-        appendLog(linea, "debug");
-    }
-
-    appendLog("Archivo procesado correctamente.");
+    appendLog("Archivo procesado correctamente.", "ok");
     QMessageBox::information(this, "Éxito", "Archivo cargado y procesado correctamente.");
 }
 
@@ -279,7 +243,7 @@ void MainWindow::onBuscarPorTitulo() {
     Libro* primerEncontrado = arbol.buscarPorTitulo(titulo.toStdString());
 
     // lista completa de coincidencias
-    ListaEcontados* lista = arbol.buscarTodosPorTitulo(titulo.toStdString());
+    ListaEncontados* lista = arbol.buscarTodosPorTitulo(titulo.toStdString());
     Nodo* actual = lista->getCabeza();
 
     if (primerEncontrado && actual) {
