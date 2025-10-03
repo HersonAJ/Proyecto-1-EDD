@@ -61,6 +61,7 @@ add_executable(Biblioteca_Magica main.cpp
         GUI/Vistas/B+/BPlusViewer.h
         GUI/Vistas/B+/BPlusViewer.cpp
         ArbolB+/B+_Buscar.cpp
+        ArbolB+/B+_Eliminar.cpp
 )
 target_link_libraries(Biblioteca_Magica
         Qt5::Core

@@ -24,7 +24,14 @@ private:
     NodoInterno* buscarPadre(NodoBPlus* actual, NodoBPlus* hijo) const;
     void recorrerAVLyAgregarLibros(NodoIndiceISBN* nodoAVL, ListaLibros* resultados) const;
     bool buscarGeneroAux(const std::string& genero, NodoHoja** hojaOut, int& pos) const;//metodo auxiliar para la eliminacion
-
+    bool buscarPosicionGenero(const std::string& genero, NodoHoja** hojaResultado, int& posicionResultado) const;
+    void eliminarGeneroDeHoja(NodoHoja* hoja, int posicion);
+    void balancearHoja(NodoHoja* hoja);
+    void redistribuirHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInterno* padre, int posClavePadre);
+    void fusionarHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInterno* padre, int posClavePadre);
+    void balancearInterno(NodoInterno* interno);
+    void redistribuirInternos(NodoInterno* internoIzq, NodoInterno* internoDer, NodoInterno* padre, int posClavePadre);
+    void fusionarInternos(NodoInterno* internoIzq, NodoInterno* internoDer, NodoInterno* padre, int posClavePadre);
 public:
     ArbolBPlus();
     ~ArbolBPlus();
