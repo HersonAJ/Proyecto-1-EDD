@@ -124,7 +124,7 @@ void ArbolBPlus::eliminarGeneroDeHoja(NodoHoja* hoja, int posicion) {
               << ", siguiente: " << hoja->siguiente << std::endl;
 
     // Verificar si la hoja queda con muy pocas entradas
-    if (hoja->numClaves < 1) {
+    if (hoja->numClaves < T_BPLUS -1) {
         std::cout << "[DEBUG] Hoja con muy pocas entradas, necesita balanceo" << std::endl;
         balancearHoja(hoja);
     }
@@ -157,7 +157,7 @@ void ArbolBPlus::balancearHoja(NodoHoja* hoja) {
         NodoHoja* hermanaIzq = (NodoHoja*)padre->hijos[posEnPadre - 1];
 
         // Si hermana izquierda puede prestar entradas
-        if (hermanaIzq->numClaves > 1) { // Mínimo + 1 para prestar
+        if (hermanaIzq->numClaves > T_BPLUS - 1) { // Mínimo + 1 para prestar
             redistribuirHojas(hermanaIzq, hoja, padre, posEnPadre - 1);
             return;
         }
@@ -301,7 +301,7 @@ void ArbolBPlus::balancearInterno(NodoInterno* interno) {
     if (posEnPadre > 0) {
         NodoInterno* hermanoIzq = (NodoInterno*)padre->hijos[posEnPadre - 1];
 
-        if (hermanoIzq->numClaves > 1) { // Puede prestar
+        if (hermanoIzq->numClaves > T_BPLUS - 1) { // Puede prestar
             redistribuirInternos(hermanoIzq, interno, padre, posEnPadre - 1);
             return;
         }
@@ -311,7 +311,7 @@ void ArbolBPlus::balancearInterno(NodoInterno* interno) {
     if (posEnPadre < padre->numClaves) {
         NodoInterno* hermanoDer = (NodoInterno*)padre->hijos[posEnPadre + 1];
 
-        if (hermanoDer->numClaves > 1) {
+        if (hermanoDer->numClaves > T_BPLUS - 1) {
             redistribuirInternos(interno, hermanoDer, padre, posEnPadre);
             return;
         }
@@ -408,7 +408,7 @@ void ArbolBPlus::fusionarInternos(NodoInterno* internoIzq, NodoInterno* internoD
     padre->hijos[padre->numClaves + 1] = nullptr;
 
     // Verificar si el padre necesita balanceo después de la fusión
-    if (padre->numClaves < 1 && padre != raiz) {
+    if (padre->numClaves < T_BPLUS - 1 && padre != raiz) {
         balancearInterno(padre);
     }
 }
