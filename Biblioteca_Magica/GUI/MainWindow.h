@@ -30,6 +30,7 @@ private slots:
     void onEliminarLibro();
     void onBuscarPorFecha();
     void onBuscarPorGenero();
+    void onBuscarPorISBN();
 
 private:
     void createMenu();

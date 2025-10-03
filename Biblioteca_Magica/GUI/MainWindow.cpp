@@ -109,9 +109,12 @@ void MainWindow::createMenu() {
     QAction* actionBuscarPorGenero = new QAction("Por Genero", this);
     connect(actionBuscarPorGenero, &QAction::triggered, this, &MainWindow::onBuscarPorGenero);
 
+    QAction* actionBuscarISBN = new QAction("Por ISBN", this);
+    connect(actionBuscarISBN, &QAction::triggered, this, &MainWindow::onBuscarPorISBN);
+
     menuBuscar->addAction(actionBuscarFecha);
     menuBuscar->addAction(actionBuscarTitulo);
-    menuBuscar->addAction("Por ISBN");
+    menuBuscar->addAction(actionBuscarISBN);
     menuBuscar->addAction(actionBuscarPorGenero);
     menuLibros->addMenu(menuBuscar);
 
@@ -485,4 +488,34 @@ void MainWindow::onBuscarPorGenero() {
     }
 
     delete resultados;
+}
+
+void MainWindow::onBuscarPorISBN() {
+    if (indiceISBN.estaVacio()) {
+        appendLog("El índice ISBN está vacío. Cargue datos antes de buscar.", "error");
+        return;
+    }
+
+    bool ok;
+    QString isbn = QInputDialog::getText(this, "Buscar por ISBN",
+                                         "ISBN del libro:", QLineEdit::Normal,
+                                         "", &ok);
+    if (!ok || isbn.isEmpty()) return;
+
+    std::string isbnStr = isbn.toStdString();
+
+    // Búsqueda binaria en el IndiceISBN (AVL)
+    Libro* libroEncontrado = indiceISBN.buscar(isbnStr);
+
+    if (libroEncontrado) {
+        appendLog("\n--- Resultado de búsqueda por ISBN ---", "ok");
+        appendLog("Libro encontrado:\n" + libroEncontrado->toString(), "ok");
+
+        QMessageBox::information(this, "Libro encontrado",
+                                "Se encontró el libro con ISBN: " + isbn);
+    } else {
+        appendLog("No se encontró ningún libro con ISBN: " + isbnStr, "error");
+        QMessageBox::warning(this, "Sin resultados",
+                            "No se encontró ningún libro con ese ISBN.");
+    }
 }
