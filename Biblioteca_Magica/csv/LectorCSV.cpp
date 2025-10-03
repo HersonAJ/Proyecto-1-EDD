@@ -79,9 +79,14 @@ std::string LectorCSV::limpiarCampo(const std::string& campoOriginal) {
 }
 
 // Constructor
-LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB, IndiceISBN& indice, ArbolBPlus& arbolBPlus, Catalogo& catalogo)
-    : rutaArchivo(ruta), arbol(arbolDestino), arbolB(arbolB), indiceISBN(indice), arbolBPlus(arbolBPlus), catalogoGlobal(catalogo) {}
+LectorCSV::LectorCSV(ArbolAVL& arbolDestino, ArbolB& arbolB, IndiceISBN& indice, ArbolBPlus& arbolBPlus, Catalogo& catalogo)
+    : rutaArchivo(""), arbol(arbolDestino), arbolB(arbolB), indiceISBN(indice), arbolBPlus(arbolBPlus), catalogoGlobal(catalogo) {}
 
+//sobrecarga al constructor para que reciva la ruta
+void LectorCSV::procesarArchivo(const std::string &ruta) {
+    rutaArchivo = ruta;
+    procesarArchivo();
+}
 
 void LectorCSV::procesarArchivo() {
     std::ifstream archivo(rutaArchivo);
@@ -171,4 +176,62 @@ void LectorCSV::procesarArchivo() {
         arbolBPlus.insertarLibroEnGenero(libroBPlus);
     }
     log("Lectura finalizada");
+}
+
+// agregarLibroIndividual
+bool LectorCSV::agregarLibroIndividual(const std::string& titulo,
+                                      const std::string& isbn,
+                                      const std::string& genero,
+                                      const std::string& fecha,
+                                      const std::string& autor) {
+
+    // Validar que el ISBN no exista
+    if (indiceISBN.buscar(isbn)) {
+        log("Error: El ISBN '" + isbn + "' ya existe");
+        return false;
+    }
+
+    // Validar fecha numérica
+    try {
+        int año = std::stoi(fecha);
+        if (año <= 0) {
+            log("Error: La fecha debe ser un año válido positivo");
+            return false;
+        }
+    } catch (const std::exception& e) {
+        log("Error: La fecha debe ser un año válido numérico");
+        return false;
+    }
+
+    // Validar campos no vacíos
+    if (titulo.empty() || isbn.empty() || genero.empty() || fecha.empty() || autor.empty()) {
+        log("Error: Todos los campos son obligatorios");
+        return false;
+    }
+
+    try {
+        // MISMAS 5 COPIAS que en procesarArchivo()
+        Libro* libroGlobal = new Libro(titulo, isbn, genero, fecha, autor);
+        Libro* libroAVL = new Libro(titulo, isbn, genero, fecha, autor);
+        Libro* libroB = new Libro(titulo, isbn, genero, fecha, autor);
+        Libro* libroBPlus = new Libro(titulo, isbn, genero, fecha, autor);
+        Libro* libroCatalogo = new Libro(titulo, isbn, genero, fecha, autor);
+
+        // MISMAS INSERCIONES que en procesarArchivo()
+        arbol.insertar(libroAVL);
+        arbolB.insertar(libroB);
+        indiceISBN.insertar(isbn, libroGlobal);
+        catalogoGlobal.agregarLibro(libroCatalogo);
+
+        // MISMO PROCESO para Árbol B+
+        arbolBPlus.insertarSoloGenero(genero);
+        arbolBPlus.insertarLibroEnGenero(libroBPlus);
+
+        log("Libro agregado manualmente: " + titulo + " - ISBN: " + isbn);
+        return true;
+
+    } catch (const std::exception& e) {
+        log("Error excepción al agregar libro: " + std::string(e.what()));
+        return false;
+    }
 }

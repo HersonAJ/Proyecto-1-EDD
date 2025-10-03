@@ -19,9 +19,12 @@
 #include "Vistas/B+/BPlusViewer.h"
 #include  <QLabel>
 #include  <QTabWidget>
+#include <QFormLayout>
+#include <QDialogButtonBox>
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),
+    lectorCSV(arbol, arbolB, indiceISBN, arbolBPlus, catalogoGlobal)
 {
     setWindowTitle("Biblioteca Mágica");
     resize(1000, 700);
@@ -55,12 +58,8 @@ MainWindow::MainWindow(QWidget *parent)
     rendimiento = new PruebaRendimiento(&arbol, &indiceISBN, &catalogoGlobal, this);
     tabs->addTab(rendimiento, "Rendimiento");
 
-    //espacio para visualizar los otros arboles
-
     // Agregar tabs al layout central
     layout->addWidget(tabs);
-
-
     central->setLayout(layout);
     setCentralWidget(central);
 }
@@ -68,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
 void MainWindow::createMenu() {
     QMenuBar *menuBar = new QMenuBar(this);
 
-    // ===== Menú Archivo =====
+    //Menu Archivo
     QMenu *menuArchivo = new QMenu("Archivo", this);
 
     QAction *actionCargar = new QAction("Cargar archivo CSV", this);
@@ -89,10 +88,11 @@ void MainWindow::createMenu() {
     connect(actionSalir, &QAction::triggered, this, &QMainWindow::close);
     menuArchivo->addAction(actionSalir);
 
-    // ===== Menú Libros =====
+    //Menu Libros
     QMenu *menuLibros = new QMenu("Libros", this);
 
     QAction *actionAgregar = new QAction("Agregar libro", this);
+    connect(actionAgregar, &QAction::triggered, this, &MainWindow::onAgregarLibro);
     menuLibros->addAction(actionAgregar);
 
     QAction *actionEliminar = new QAction("Eliminar libro", this);
@@ -118,9 +118,8 @@ void MainWindow::createMenu() {
     menuBuscar->addAction(actionBuscarPorGenero);
     menuLibros->addMenu(menuBuscar);
 
-    // ===== Menú Visualización =====
+    //Menu Visualizacion
     QMenu *menuVisualizacion = new QMenu("Visualización", this);
-    //menuVisualizacion->addAction("Ver AVL");
     QAction *actionVerAVL = new QAction("Ver AVL", this);
     connect(actionVerAVL, &QAction::triggered, this, [this]() {
         avlViewer->actualizarVista();            // refresca la imagen
@@ -146,11 +145,7 @@ void MainWindow::createMenu() {
     menuVisualizacion->addAction(actionVerB);
     menuVisualizacion->addAction(actionVerAVL);
     menuVisualizacion->addAction(actionVerBPlus);
-
-    //menuVisualizacion->addAction("Ver Árbol B+");
     menuVisualizacion->addSeparator();
-
-
 
     // Agregar menús a la barra
     menuBar->addMenu(menuArchivo);
@@ -179,15 +174,19 @@ void MainWindow::appendLog(const std::string &mensaje, const QString &tipo) {
 
 void MainWindow::onCargarArchivo() {
     QString ruta = QFileDialog::getOpenFileName(
-        this, "Seleccionar archivo CSV", "", "Archivo CSV (*.csv);;Todos los archivos(*)");
+        this,
+        "Seleccionar archivo CSV",
+        "",
+        "Archivo CSV (*.csv);;Todos los archivos(*)");
 
     if (ruta.isEmpty()) return;
 
     std::string rutaArchivo = ruta.toStdString();
+
     appendLog("Cargando archivo: " + rutaArchivo, "info");
 
-    LectorCSV lector(rutaArchivo, arbol, arbolB, indiceISBN, arbolBPlus, catalogoGlobal);
-    lector.setLogger([this](const std::string &msg) {
+    //usar la sobrecarga con ruta específica
+    lectorCSV.setLogger([this](const std::string &msg) {
         if (msg.rfind("Error", 0) == 0) {
             appendLog(msg, "error");
         } else {
@@ -195,9 +194,9 @@ void MainWindow::onCargarArchivo() {
         }
     });
 
-    lector.procesarArchivo();
+    lectorCSV.procesarArchivo(rutaArchivo);  //usar la sobrecarga
 
-    appendLog("Archivo procesado correctamente.", "ok");
+    appendLog("Archivo procesado correctamente.");
     QMessageBox::information(this, "Éxito", "Archivo cargado y procesado correctamente.");
 }
 
@@ -301,25 +300,25 @@ void MainWindow::onEliminarLibro() {
 
     std::string isbnStr = isbn.toStdString();
 
-    // 1. UNA SOLA búsqueda en el índice global
+    //búsqueda en el índice global
     Libro* libro = indiceISBN.buscar(isbnStr);
     if (!libro) {
         appendLog("Libro con ISBN '" + isbnStr + "' no encontrado.", "error");
         return;
     }
 
-    // 2. Obtener todos los datos necesarios
+    //Obtener todos los datos necesarios
     std::string titulo = libro->getTitulo();
     std::string fecha = libro->getFecha();
     std::string genero = libro->getGenero();
 
-    // 3. Eliminar de todas las estructuras
+    //Eliminar de todas las estructuras
     arbol.eliminarPorISBN(isbnStr, titulo);      // AVL general
     arbolB.eliminarPorISBN(isbnStr, fecha);      // Árbol B
     arbolBPlus.eliminarPorISBN(isbnStr, genero); // Árbol B+
     bool eliminadoDelCatalogo = catalogoGlobal.eliminarLibroPorISBN(isbnStr);
 
-    // 4.  eliminar del índice global
+    // eliminar del índice global
     indiceISBN.eliminar(isbnStr);
 
     appendLog("Libro eliminado con ISBN: " + isbnStr, "ok");
@@ -481,5 +480,78 @@ void MainWindow::onBuscarPorISBN() {
         appendLog("No se encontró ningún libro con ISBN: " + isbnStr, "error");
         QMessageBox::warning(this, "Sin resultados",
                             "No se encontró ningún libro con ese ISBN.");
+    }
+}
+
+void MainWindow::onAgregarLibro() {
+    // Diálogo para ingresar datos del libro
+    QDialog dialog(this);
+    dialog.setWindowTitle("Agregar Nuevo Libro");
+    dialog.setFixedSize(400, 300);
+
+    QFormLayout form(&dialog);
+
+    // Campos de entrada
+    QLineEdit *editTitulo = new QLineEdit(&dialog);
+    QLineEdit *editISBN = new QLineEdit(&dialog);
+    QLineEdit *editGenero = new QLineEdit(&dialog);
+    QLineEdit *editFecha = new QLineEdit(&dialog);
+    QLineEdit *editAutor = new QLineEdit(&dialog);
+
+    // Agregar campos al formulario
+    form.addRow("Título:", editTitulo);
+    form.addRow("ISBN:", editISBN);
+    form.addRow("Género:", editGenero);
+    form.addRow("Fecha (año):", editFecha);
+    form.addRow("Autor:", editAutor);
+
+    // Botones
+    QDialogButtonBox buttonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
+                               Qt::Horizontal, &dialog);
+    form.addRow(&buttonBox);
+
+    QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    // Mostrar diálogo
+    if (dialog.exec() != QDialog::Accepted) {
+        return; // Usuario canceló
+    }
+
+    // Obtener datos
+    QString titulo = editTitulo->text().trimmed();
+    QString isbn = editISBN->text().trimmed();
+    QString genero = editGenero->text().trimmed();
+    QString fecha = editFecha->text().trimmed();
+    QString autor = editAutor->text().trimmed();
+
+    // Validaciones
+    if (titulo.isEmpty() || isbn.isEmpty() || genero.isEmpty() || fecha.isEmpty() || autor.isEmpty()) {
+        appendLog("Error: Todos los campos son obligatorios", "error");
+        QMessageBox::warning(this, "Error", "Todos los campos son obligatorios.");
+        return;
+    }
+
+    // Convertir a std::string
+    std::string tituloStr = titulo.toStdString();
+    std::string isbnStr = isbn.toStdString();
+    std::string generoStr = genero.toStdString();
+    std::string fechaStr = fecha.toStdString();
+    std::string autorStr = autor.toStdString();
+
+    //Usar la MISMA instancia persistente de LectorCSV
+    bool exito = lectorCSV.agregarLibroIndividual(tituloStr, isbnStr, generoStr, fechaStr, autorStr);
+
+    if (exito) {
+        // Actualizar vistas
+        avlViewer->actualizarVista();
+        bViewer->actualizarVista();
+        bPlusViewer->actualizarVista();
+
+        appendLog("Libro agregado manualmente: " + tituloStr + " - ISBN: " + isbnStr, "ok");
+        QMessageBox::information(this, "Éxito", "Libro agregado correctamente al sistema.");
+    } else {
+        appendLog("Error al agregar libro manualmente: " + tituloStr, "error");
+        QMessageBox::warning(this, "Error", "No se pudo agregar el libro. Verifique que el ISBN no exista y los datos sean válidos.");
     }
 }

@@ -27,8 +27,11 @@ private:
         if (logger) logger(msg);
     }
 public:
-    LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB, IndiceISBN& indice, ArbolBPlus& arbolBPlus, Catalogo& catalogo);
+    LectorCSV(ArbolAVL& arbolDestino, ArbolB& arbolB, IndiceISBN& indice, ArbolBPlus& arbolBPlus, Catalogo& catalogo);
+    void setRutaArchivo(const std::string& ruta) { rutaArchivo = ruta; }
+    bool agregarLibroIndividual(const std::string& titulo, const std::string& isbn, const std::string& genero, const std::string& fecha, const std::string& autor);
     void procesarArchivo();
+    void procesarArchivo(const std::string& ruta);//sobrecarga
     void setLogger(std::function<void(const std::string&)> logFunc) {
         logger = logFunc;
     }

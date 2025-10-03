@@ -15,6 +15,7 @@
 #include "Vistas/B+/BPlusViewer.h"
 #include "../Modelos/Catalogo.h"
 #include "Vistas/Rendimiento/PruebaRendimiento.h"
+#include "../csv/LectorCSV.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -31,6 +32,7 @@ private slots:
     void onBuscarPorFecha();
     void onBuscarPorGenero();
     void onBuscarPorISBN();
+    void onAgregarLibro();
 
 private:
     void createMenu();
@@ -40,6 +42,7 @@ private:
     IndiceISBN indiceISBN;
     ArbolBPlus arbolBPlus;
     Catalogo catalogoGlobal;
+    LectorCSV lectorCSV;
     void appendLog(const std::string &mensaje, const QString &tipo = "info");
     void debugMostrarArbolB();
 
