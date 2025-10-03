@@ -19,12 +19,9 @@ void ArbolBPlus::liberarRecursivo(NodoBPlus* nodo) {
         for (int i = 0; i <= interno->numClaves; i++) {
             liberarRecursivo(interno->hijos[i]);
         }
-        delete[] interno->claves;
-        delete[] interno->hijos;
         delete interno;
     } else {
         NodoHoja* hoja = (NodoHoja*)nodo;
-        delete[] hoja->entradas;
         delete hoja;
     }
 }
@@ -67,17 +64,32 @@ void ArbolBPlus::insertarSoloGenero(const std::string &genero) {
 // Buscar hoja adecuada
 NodoHoja* ArbolBPlus::buscarHoja(const std::string& genero) const {
     NodoBPlus* nodo = raiz;
+    int nivel = 0;
 
     while (!nodo->esHoja) {
         NodoInterno* interno = (NodoInterno*)nodo;
+        std::cout << "[DEBUG] buscarHoja - Nivel " << nivel << ", claves: ";
+        for (int i = 0; i < interno->numClaves; i++) {
+            std::cout << "[" << interno->claves[i] << "] ";
+        }
+        std::cout << std::endl;
+
         int i = 0;
         while (i < interno->numClaves && genero >= interno->claves[i]) {
             i++;
         }
         nodo = interno->hijos[i];
+        nivel++;
     }
 
-    return (NodoHoja*)nodo;
+    NodoHoja* hoja = (NodoHoja*)nodo;
+    std::cout << "[DEBUG] buscarHoja - Hoja final: ";
+    for (int i = 0; i < hoja->numClaves; i++) {
+        std::cout << "[" << hoja->entradas[i].genero << "] ";
+    }
+    std::cout << std::endl;
+
+    return hoja;
 }
 
 // Insertar en hoja
@@ -108,14 +120,20 @@ void ArbolBPlus::insertarEnHoja(NodoHoja* hoja, Libro* libro) {
 
 // Dividir hoja
 void ArbolBPlus::dividirHoja(NodoHoja* hoja) {
-    int mitad = hoja->numClaves / 2;//clave que sube en este caso 5/2 = 2 entonces es la mitad exacta
+    int mitad = hoja->numClaves / 2;
 
     NodoHoja* nuevaHoja = new NodoHoja();
     nuevaHoja->numClaves = hoja->numClaves - mitad;
 
-    // Copiar la mitad superior a la nueva hoja
+    // Copiar la mitad superior (ENTRADA COMPLETA, incluyendo indiceISBN)
     for (int i = 0; i < nuevaHoja->numClaves; i++) {
-        nuevaHoja->entradas[i].genero = hoja->entradas[mitad + i]. genero;
+        nuevaHoja->entradas[i] = hoja->entradas[mitad + i];
+    }
+
+    // Opcional: limpiar las entradas sobrantes en la hoja original
+    for (int i = mitad; i < hoja->numClaves; i++) {
+        hoja->entradas[i].genero.clear();
+
     }
 
     hoja->numClaves = mitad;
@@ -132,7 +150,6 @@ void ArbolBPlus::dividirHoja(NodoHoja* hoja) {
     std::string claveSubir = nuevaHoja->entradas[0].genero;
 
     if (hoja == raiz) {
-        // Crear nueva raíz
         NodoInterno* nuevaRaiz = new NodoInterno();
         nuevaRaiz->claves[0] = claveSubir;
         nuevaRaiz->hijos[0] = hoja;
@@ -140,7 +157,6 @@ void ArbolBPlus::dividirHoja(NodoHoja* hoja) {
         nuevaRaiz->numClaves = 1;
         raiz = nuevaRaiz;
     } else {
-        // Insertar en el padre existente
         NodoInterno* padre = buscarPadre(raiz, hoja);
 
         if (!padre) {
@@ -164,6 +180,7 @@ void ArbolBPlus::dividirHoja(NodoHoja* hoja) {
         }
     }
 }
+
 
 // Dividir interno
 void ArbolBPlus::dividirInterno(NodoInterno* interno) {

@@ -126,9 +126,14 @@ NodoIndiceISBN* IndiceISBN::eliminarNodo(NodoIndiceISBN* nodo, const std::string
         }
         else {
             NodoIndiceISBN* sucesor = nodoMinimo(nodo->derecho);
-            nodo->isbn = sucesor->isbn;
-            nodo->libro = sucesor->libro;
-            nodo->derecho = eliminarNodo(nodo->derecho, sucesor->isbn);
+            // GUARDAR ISBN ANTES de eliminar
+            std::string isbnSucesor = sucesor->isbn;
+
+            // Eliminar el sucesor
+            nodo->derecho = eliminarNodo(nodo->derecho, isbnSucesor);
+
+            // Actualizar solo el ISBN
+            nodo->isbn = isbnSucesor;
         }
     }
 
@@ -137,12 +142,13 @@ NodoIndiceISBN* IndiceISBN::eliminarNodo(NodoIndiceISBN* nodo, const std::string
 }
 
 void IndiceISBN::eliminar(const std::string& isbn) {
+    std::cout << "[DEBUG] IndiceISBN::eliminar('" << isbn << "') - raiz antes: " << raiz << std::endl;
     raiz = eliminarNodo(raiz, isbn);
+    std::cout << "[DEBUG] IndiceISBN::eliminar('" << isbn << "') - raiz después: " << raiz << std::endl;
 }
 
 // Búsqueda
-Libro* IndiceISBN::buscar(const std::string& isbn) {
-    std::cout << "Buscando libro: " << isbn << std::endl;
+Libro* IndiceISBN::buscar(const std::string& isbn) const {
     NodoIndiceISBN* actual = raiz;
     while (actual) {
         if (isbn < actual->isbn)
@@ -153,4 +159,10 @@ Libro* IndiceISBN::buscar(const std::string& isbn) {
             return actual->libro;
     }
     return nullptr;
+}
+
+bool IndiceISBN::estaVacio() const {
+    bool vacio = (raiz == nullptr);
+    std::cout << "[DEBUG] IndiceISBN::estaVacio() = " << vacio << std::endl;
+    return vacio;
 }

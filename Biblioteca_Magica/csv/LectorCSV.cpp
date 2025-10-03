@@ -139,17 +139,23 @@ void LectorCSV::procesarArchivo() {
         fecha  = limpiarCampo(fecha);
         autor  = limpiarCampo(autor);
 
-        // Crear libro y guardar en ambos árboles
-        Libro* libro = new Libro(titulo, isbn, genero, fecha, autor);
-        librosTemporales.insertar(libro);
 
-        std::cout << "Insertando en Árbol B - Fecha: '" << fecha << "' -> " << libro->getFechaInt() << std::endl;
+        Libro* libroGlobal = new Libro(titulo, isbn, genero, fecha, autor);  // Para IndiceISBN global
+        Libro* libroAVL = new Libro(titulo, isbn, genero, fecha, autor);     // Para Árbol AVL
+        Libro* libroB = new Libro(titulo, isbn, genero, fecha, autor);       // Para Árbol B
+        Libro* libroBPlus = new Libro(titulo, isbn, genero, fecha, autor);   // Para Árbol B+
+
+        // Guardar la copia del B+ en la lista temporal
+        librosTemporales.insertar(libroBPlus);
+
+
+        std::cout << "Insertando en Árbol B - Fecha: '" << fecha << "' -> " << libroB->getFechaInt() << std::endl;
         arbolBPlus.insertarSoloGenero(genero);
-        arbol.insertar(libro);
-        arbolB.insertar(libro);
-        indiceISBN.insertar(libro->getIsbn(), libro);
-        arbolB.verificarDuplicados();
+        arbol.insertar(libroAVL);                    // Árbol AVL con su copia
+        arbolB.insertar(libroB);                     // Árbol B con su copia
+        indiceISBN.insertar(libroGlobal->getIsbn(), libroGlobal);  // Global con su copia
 
+        arbolB.verificarDuplicados();
         ArbolBPlus::recorrerEstructura(arbolBPlus.getRaiz());
 
         //RecorridosAVL<NodoAVL>::inOrden(arbol.getRaiz());
@@ -160,8 +166,8 @@ void LectorCSV::procesarArchivo() {
     archivo.close();
     ListaLibros::Interador iter = librosTemporales.obtenerIterador();
     while (iter.tieneSiguiente()) {
-        Libro* libro = iter.siguiente();
-        arbolBPlus.insertarLibroEnGenero(libro);
+        Libro* libroBPlus = iter.siguiente();
+        arbolBPlus.insertarLibroEnGenero(libroBPlus);
     }
     log("Lectura finalizada");
 }

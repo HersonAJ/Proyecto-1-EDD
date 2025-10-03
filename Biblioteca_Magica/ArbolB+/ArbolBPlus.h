@@ -44,7 +44,8 @@ public:
     NodoHoja* getPrimeraHoja() const { return primeraHoja; }
 
     static void recorrerEstructura(NodoBPlus* nodo, int nivel = 0);
-    void eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGeneral);
+    //void eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGeneral);
+    void eliminarPorISBN(const std::string& isbn, const std::string& genero);
     ListaLibros* buscarPorGenero(const std::string& genero) const; //implementaicion para la accion de busqueda del usuario
 };
 

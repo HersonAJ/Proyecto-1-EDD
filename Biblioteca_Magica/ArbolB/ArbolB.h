@@ -43,7 +43,8 @@ public:
     // Búsqueda individual por fecha (devuelve un libro cualquiera de esa fecha, o nullptr si no existe)
     Libro* buscarPorFecha(const std::string& fecha);
 
-    void eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGlobal);
+    //void eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGlobal);
+    void eliminarPorISBN(const std::string& isbn, const std::string& fecha);
     void eliminar(const std::string& fecha);
     void imprimir();
     NodoB* getRaiz() const { return raiz; }

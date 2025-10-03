@@ -2,7 +2,7 @@
 #include <ostream>
 #include "ArbolB.h"
 
-void ArbolB::eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGlobal) {
+/*void ArbolB::eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGlobal) {
     //1 buscar el libro en el indice globar usando su isbn
     Libro* libro = indiceGlobal.buscar(isbn);
     if (!libro) {
@@ -38,6 +38,48 @@ void ArbolB::eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGlobal) 
 
     std::cout << "no se encontro la fecha asociada al isbn den el arbol B: " << isbn << std::endl;
 
+}*/
+void ArbolB::eliminarPorISBN(const std::string& isbn, const std::string& fecha) {
+
+    if (fecha.empty()) {
+        std::cout << "Fecha vacía para ISBN: " << isbn << std::endl;
+        return;
+    }
+
+    // Convertir fecha a entero
+    int fechaInt;
+    try {
+        fechaInt = std::stoi(fecha);
+    } catch (const std::exception& e) {
+        std::cout << "Error convirtiendo fecha: '" << fecha << "' para ISBN: " << isbn << std::endl;
+        return;
+    }
+
+    // Buscar la clave de esa fecha en el árbol
+    NodoB* nodo = raiz;
+    while (nodo) {
+        int i = 0;
+        while (i < nodo->numClaves && fechaInt > nodo->claves[i]->fecha) {
+            i++;
+        }
+
+        if (i < nodo->numClaves && nodo->claves[i]->fecha == fechaInt) {
+            // Se encontró la fecha
+            nodo->claves[i]->indiceISBN.eliminar(isbn);
+
+            // Si el índice ISBN local se queda vacío se elimina la clave completamente en el B
+            if (nodo->claves[i]->indiceISBN.estaVacio()) {
+                std::string fechaStr = std::to_string(fechaInt);
+                eliminar(fechaStr);
+            }
+            return;
+        }
+
+        if (nodo->esHoja) break;
+        nodo = nodo->hijos[i];
+    }
+
+    std::cout << "No se encontró la fecha asociada al ISBN en el árbol B: " << isbn << std::endl;
 }
 
 void ArbolB::eliminar(const std::string& fechaStr) {

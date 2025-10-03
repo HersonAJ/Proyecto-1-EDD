@@ -327,22 +327,27 @@ void MainWindow::onEliminarLibro() {
 
     std::string isbnStr = isbn.toStdString();
 
-    // Eliminar directamente en el AVL
-    arbol.eliminarPorISBN(isbnStr, indiceISBN);
-    arbolB.eliminarPorISBN(isbnStr, indiceISBN);
-    arbolBPlus.eliminarPorISBN(isbnStr, indiceISBN);
-
-    // Eliminar también en el Árbol B (recorriendo por ISBN)
-    try {
-        //arbolB.eliminarPorISBN(isbn.toStdString());  //
-        appendLog("Árbol B después de eliminar.", "info");
-//        debugMostrarArbolB();
-    } catch (const std::exception& e) {
-        appendLog("Error al eliminar en el Árbol B con ISBN: " + isbn.toStdString(), "error");
+    // 1. UNA SOLA búsqueda en el índice global
+    Libro* libro = indiceISBN.buscar(isbnStr);
+    if (!libro) {
+        appendLog("Libro con ISBN '" + isbnStr + "' no encontrado.", "error");
+        return;
     }
 
-    // (más adelante se hará lo mismo con el B+)
-    appendLog("Libro eliminado con ISBN: " + isbn.toStdString(), "ok");
+    // 2. Obtener todos los datos necesarios
+    std::string titulo = libro->getTitulo();
+    std::string fecha = libro->getFecha();
+    std::string genero = libro->getGenero();
+
+    // 3. Eliminar de todas las estructuras
+    arbol.eliminarPorISBN(isbnStr, titulo);      // AVL general
+    arbolB.eliminarPorISBN(isbnStr, fecha);      // Árbol B
+    arbolBPlus.eliminarPorISBN(isbnStr, genero); // Árbol B+
+
+    // 4.  eliminar del índice global
+    indiceISBN.eliminar(isbnStr);
+
+    appendLog("Libro eliminado con ISBN: " + isbnStr, "ok");
     QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");
 }
 

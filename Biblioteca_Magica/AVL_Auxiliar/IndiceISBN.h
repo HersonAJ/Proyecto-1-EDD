@@ -28,9 +28,10 @@ public:
 
     void insertar(const std::string& isbn, Libro* libro);
     void eliminar(const std::string& isbn);
-    Libro* buscar(const std::string& isbn);
+    //Libro* buscar(const std::string& isbn);
+    Libro* buscar(const std::string& isbn) const;
 
-    bool estaVacio() const { return raiz == nullptr; }
+    bool estaVacio() const;
     NodoIndiceISBN* getRaiz() const { return raiz; }
 };
 

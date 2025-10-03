@@ -6,6 +6,13 @@
 bool ArbolBPlus::buscarPosicionGenero(const std::string& genero, NodoHoja** hojaResultado, int& posicionResultado) const {
     *hojaResultado = buscarHoja(genero);
 
+    std::cout << "[DEBUG] buscarPosicionGenero - hoja->numClaves: " << (*hojaResultado)->numClaves << std::endl;
+    std::cout << "[DEBUG] buscarPosicionGenero - entradas en hoja: ";
+    for (int i = 0; i < (*hojaResultado)->numClaves; i++) {
+        std::cout << "[" << (*hojaResultado)->entradas[i].genero << "] ";
+    }
+    std::cout << std::endl;
+
     for (int i = 0; i < (*hojaResultado)->numClaves; i++) {
         if ((*hojaResultado)->entradas[i].genero == genero) {
             posicionResultado = i;
@@ -15,7 +22,7 @@ bool ArbolBPlus::buscarPosicionGenero(const std::string& genero, NodoHoja** hoja
     return false;
 }
 
-void ArbolBPlus::eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGeneral) {
+/*void ArbolBPlus::eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGeneral) {
     // Paso 1: Buscar el libro en el índice general por ISBN
     Libro* libro = indiceGeneral.buscar(isbn);
 
@@ -52,25 +59,80 @@ void ArbolBPlus::eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGene
         eliminarGeneroDeHoja(hoja, posicion);
     }
 }
+*/
 
+void ArbolBPlus::eliminarPorISBN(const std::string& isbn, const std::string& genero) {
+    // Ya no busca en indiceGeneral, recibe el género directamente
+
+    if (genero.empty()) {
+        std::cout << "Género vacío para ISBN: " << isbn << std::endl;
+        return;
+    }
+
+    // Buscar la posición del género en el B+
+    NodoHoja* hoja;
+    int posicion;
+    bool generoEncontrado = buscarPosicionGenero(genero, &hoja, posicion);
+
+    if (!generoEncontrado) {
+        std::cout << "Género '" << genero << "' no encontrado en el árbol B+." << std::endl;
+        return;
+    }
+
+    std::cout << "Eliminando libro con ISBN '" << isbn
+              << "' del género '" << genero << "'" << std::endl;
+
+    // Eliminar el libro del AVL específico
+    hoja->entradas[posicion].indiceISBN.eliminar(isbn);
+
+    // Verificar si el AVL quedó vacío después de eliminar
+    if (hoja->entradas[posicion].indiceISBN.estaVacio()) {
+        std::cout << "AVL del género '" << genero << "' quedó vacío. Eliminando género del B+." << std::endl;
+        eliminarGeneroDeHoja(hoja, posicion);
+    }
+}
 void ArbolBPlus::eliminarGeneroDeHoja(NodoHoja* hoja, int posicion) {
-    //eliminar la entrada desplazando las demas
+    std::cout << "[DEBUG] eliminarGeneroDeHoja - hoja->numClaves: " << hoja->numClaves
+              << ", posicion: " << posicion << std::endl;
+
+    // Mostrar entradas ANTES de eliminar
+    std::cout << "[DEBUG] Entradas ANTES: ";
+    for (int i = 0; i < hoja->numClaves; i++) {
+        std::cout << "[" << hoja->entradas[i].genero << "] ";
+    }
+    std::cout << std::endl;
+
+    // Mostrar enlaces ANTES
+    std::cout << "[DEBUG] Enlaces ANTES - anterior: " << hoja->anterior
+              << ", siguiente: " << hoja->siguiente << std::endl;
+
+    // Eliminar la entrada desplazando las demás
     for (int i = posicion; i < hoja->numClaves - 1; i++) {
         hoja->entradas[i] = hoja->entradas[i + 1];
     }
     hoja->numClaves--;
 
-    //verificar si la hoja queda con muy pocas entradas
-    //minimo como T_BPLUS - 1
+    // Mostrar entradas DESPUÉS de eliminar
+    std::cout << "[DEBUG] Entradas DESPUÉS: ";
+    for (int i = 0; i < hoja->numClaves; i++) {
+        std::cout << "[" << hoja->entradas[i].genero << "] ";
+    }
+    std::cout << std::endl;
+
+    // Mostrar enlaces DESPUÉS
+    std::cout << "[DEBUG] Enlaces DESPUÉS - anterior: " << hoja->anterior
+              << ", siguiente: " << hoja->siguiente << std::endl;
+
+    // Verificar si la hoja queda con muy pocas entradas
     if (hoja->numClaves < 1) {
-        std::cout << "Hoja con muy pocas entradas, necesita balanceo" << std::endl;
-        //llamada a metodo de balanceo
+        std::cout << "[DEBUG] Hoja con muy pocas entradas, necesita balanceo" << std::endl;
         balancearHoja(hoja);
     }
 }
 
 void ArbolBPlus::balancearHoja(NodoHoja* hoja) {
     // Si es la raíz y tiene al menos 1 entrada, está bien
+    std::cout << "[DEBUG] balancearHoja INICIO - hoja->numClaves: " << hoja->numClaves << std::endl;
     if (hoja == raiz) {
         if (hoja->numClaves >= 1) return; // Raíz puede tener mínimo 1
         // Si raíz queda vacía, manejaremos esto después
@@ -122,6 +184,7 @@ void ArbolBPlus::balancearHoja(NodoHoja* hoja) {
         NodoHoja* hermanaDer = (NodoHoja*)padre->hijos[posEnPadre + 1];
         fusionarHojas(hoja, hermanaDer, padre, posEnPadre);
     }
+    std::cout << "[DEBUG] balancearHoja FIN" << std::endl;
 }
 
 void ArbolBPlus::redistribuirHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInterno* padre, int posClavePadre) {
@@ -169,7 +232,7 @@ void ArbolBPlus::redistribuirHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInt
 void ArbolBPlus::fusionarHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInterno* padre, int posClavePadre) {
     std::cout << "Fusionando hojas hermanas." << std::endl;
 
-    // Mover todas las entradas de hojaDer a hojaIzq
+    // Mover todas las entradas de hojaDer a hojaIzq (copia completa)
     for (int i = 0; i < hojaDer->numClaves; i++) {
         hojaIzq->entradas[hojaIzq->numClaves] = hojaDer->entradas[i];
         hojaIzq->numClaves++;
@@ -181,9 +244,7 @@ void ArbolBPlus::fusionarHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInterno
         hojaDer->siguiente->anterior = hojaIzq;
     }
 
-    // Eliminar hoja derecha
-    delete[] hojaDer->entradas;
-    delete hojaDer;
+    delete hojaDer; // destructor liberará entradas correctamente
 
     // Eliminar clave del padre y ajustar hijos
     for (int i = posClavePadre; i < padre->numClaves - 1; i++) {
@@ -192,11 +253,15 @@ void ArbolBPlus::fusionarHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInterno
     }
     padre->numClaves--;
 
+    // Evitar puntero colgante: limpiar la última referencia a hijo
+    padre->hijos[padre->numClaves + 1] = nullptr;
+
     // Verificar si el padre necesita balanceo después de la fusión
-    if (padre->numClaves < 1) { // Ajustaremos este mínimo después
+    if (padre->numClaves < 1 && padre != raiz) { // ajustar el mínimo
         balancearInterno(padre);
     }
 }
+
 
 void ArbolBPlus::balancearInterno(NodoInterno* interno) {
     // Si es la raíz y tiene al menos 1 clave, está bien
@@ -329,9 +394,7 @@ void ArbolBPlus::fusionarInternos(NodoInterno* internoIzq, NodoInterno* internoD
     }
     internoIzq->hijos[internoIzq->numClaves] = internoDer->hijos[internoDer->numClaves];
 
-    // Eliminar nodo derecho
-    delete[] internoDer->claves;
-    delete[] internoDer->hijos;
+
     delete internoDer;
 
     // Eliminar clave del padre y ajustar hijos
@@ -340,6 +403,9 @@ void ArbolBPlus::fusionarInternos(NodoInterno* internoIzq, NodoInterno* internoD
         padre->hijos[i + 1] = padre->hijos[i + 2];
     }
     padre->numClaves--;
+
+    // Evitar puntero colgante
+    padre->hijos[padre->numClaves + 1] = nullptr;
 
     // Verificar si el padre necesita balanceo después de la fusión
     if (padre->numClaves < 1 && padre != raiz) {
