@@ -13,6 +13,8 @@
 #include "../AVL_Auxiliar/IndiceISBN.h"
 #include "../ArbolB+/ArbolBPlus.h"
 #include "Vistas/B+/BPlusViewer.h"
+#include "../Modelos/Catalogo.h"
+#include "Vistas/Rendimiento/PruebaRendimiento.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -36,6 +38,7 @@ private:
     ArbolB arbolB;
     IndiceISBN indiceISBN;
     ArbolBPlus arbolBPlus;
+    Catalogo catalogoGlobal;
     void appendLog(const std::string &mensaje, const QString &tipo = "info");
     void debugMostrarArbolB();
 
@@ -43,6 +46,7 @@ private:
     AVLViewer* avlViewer;
     BViewer* bViewer;
     BPlusViewer* bPlusViewer;
+    PruebaRendimiento* rendimiento;
 };
 
 #endif // MAINWINDOW_H

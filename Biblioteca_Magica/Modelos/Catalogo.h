@@ -1,27 +1,44 @@
 #ifndef BIBLIOTECA_MAGICA_CATALOGO_H
 #define BIBLIOTECA_MAGICA_CATALOGO_H
 
+#include "../include/Nodo.h"
 #include "Libro.h"
-#include "../include/ListaRepetidos.h"
 
 class Catalogo {
     private:
-    int idSiguiente;
-    ListaRepetidos libros;
+    Nodo* cabeza;
+    Nodo* cola;
+    int tamaño;
 
     public:
     Catalogo();
     ~Catalogo();
 
-    Libro* crearLibro(const std::string& titulo,
-                      const std::string& isbn,
-                      const std::string& genero,
-                      const std::string& fecha,
-                      const std::string& autor);
+    //operaciones basicas
+    void agregarLibro(Libro* libro);
+    bool eliminarLibroPorISBN(const std::string& isbn);
+    bool estaVacio() const;
+    int getTamaño() const;
 
-    bool destruirLibro(Libro* libro);
-    Libro* getPorId(int id) const;
-    const ListaRepetidos& getLibros() const;
+    //busquedas secuenciasel para la medicion de desempeño
+    Libro* buscarTituloSecuencial(const std::string& titulo);
+    Libro* buscarISBNSecuencial(const std::string& isbn);
+
+    //iterador
+    class Iterador {
+        private:
+        Nodo* actual;
+        public:
+        Iterador(Nodo* nodo) : actual(nodo) {}
+        bool tieneSiguiente() const { return actual != nullptr;}
+        Libro* siguiente() {
+            Libro* libro = actual->libro;
+            actual = actual->siguiente;
+            return libro;
+        }
+    };
+
+    Iterador obtenerIterador() const { return Iterador(cabeza); }
 };
 
 #endif //BIBLIOTECA_MAGICA_CATALOGO_H

@@ -52,6 +52,9 @@ MainWindow::MainWindow(QWidget *parent)
     bPlusViewer = new BPlusViewer(&arbolBPlus, this);
     tabs->addTab(bPlusViewer, "BPlus");
 
+    rendimiento = new PruebaRendimiento(&arbol, &indiceISBN, &catalogoGlobal, this);
+    tabs->addTab(rendimiento, "Rendimiento");
+
     //espacio para visualizar los otros arboles
 
     // Agregar tabs al layout central
@@ -133,6 +136,10 @@ void MainWindow::createMenu() {
         tabs->setCurrentWidget(bPlusViewer);
     });
 
+    QAction *actionCompararRendimiento = new QAction("Comparar rendimiento", this);
+    connect(actionCompararRendimiento, &QAction::triggered, this, [this]() {
+        tabs->setCurrentWidget(rendimiento);
+    });
     menuVisualizacion->addAction(actionVerB);
     menuVisualizacion->addAction(actionVerAVL);
     menuVisualizacion->addAction(actionVerBPlus);
@@ -190,7 +197,7 @@ void MainWindow::onCargarArchivo() {
 
     appendLog("Cargando archivo: " + rutaArchivo, "info");
 
-    LectorCSV lector(rutaArchivo, arbol, arbolB, indiceISBN, arbolBPlus);
+    LectorCSV lector(rutaArchivo, arbol, arbolB, indiceISBN, arbolBPlus, catalogoGlobal);
     lector.setLogger([this](const std::string &msg) {
         // Detectar si es error o no
         if (msg.rfind("Error", 0) == 0) { // empieza con "Error"
@@ -343,6 +350,7 @@ void MainWindow::onEliminarLibro() {
     arbol.eliminarPorISBN(isbnStr, titulo);      // AVL general
     arbolB.eliminarPorISBN(isbnStr, fecha);      // Árbol B
     arbolBPlus.eliminarPorISBN(isbnStr, genero); // Árbol B+
+    bool eliminadoDelCatalogo = catalogoGlobal.eliminarLibroPorISBN(isbnStr);
 
     // 4.  eliminar del índice global
     indiceISBN.eliminar(isbnStr);

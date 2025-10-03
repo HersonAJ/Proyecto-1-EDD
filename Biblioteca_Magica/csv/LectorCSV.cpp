@@ -79,8 +79,8 @@ std::string LectorCSV::limpiarCampo(const std::string& campoOriginal) {
 }
 
 // Constructor
-LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB, IndiceISBN& indice, ArbolBPlus& arbolBPlus)
-    : rutaArchivo(ruta), arbol(arbolDestino), arbolB(arbolB), indiceISBN(indice), arbolBPlus(arbolBPlus) {}
+LectorCSV::LectorCSV(const std::string& ruta, ArbolAVL& arbolDestino, ArbolB& arbolB, IndiceISBN& indice, ArbolBPlus& arbolBPlus, Catalogo& catalogo)
+    : rutaArchivo(ruta), arbol(arbolDestino), arbolB(arbolB), indiceISBN(indice), arbolBPlus(arbolBPlus), catalogoGlobal(catalogo) {}
 
 
 void LectorCSV::procesarArchivo() {
@@ -154,6 +154,7 @@ void LectorCSV::procesarArchivo() {
         arbol.insertar(libroAVL);                    // Árbol AVL con su copia
         arbolB.insertar(libroB);                     // Árbol B con su copia
         indiceISBN.insertar(libroGlobal->getIsbn(), libroGlobal);  // Global con su copia
+        catalogoGlobal.agregarLibro(new Libro(titulo, isbn, genero, fecha, autor));//lista para busqueda secuencial
 
         arbolB.verificarDuplicados();
         ArbolBPlus::recorrerEstructura(arbolBPlus.getRaiz());
