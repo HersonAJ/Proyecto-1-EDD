@@ -1,7 +1,8 @@
 #include "BPlusViewer.h"
 #include <QPixmap>
 #include <cstdlib>
-#include "../../../include/ExportadorDotB+.h"
+#include <ctime>
+#include "../../../include/ExportadorDotBPlus.h"
 
 BPlusViewer::BPlusViewer(ArbolBPlus* arbol, QWidget* parent)
     : QWidget(parent), arbol(arbol)
@@ -14,27 +15,27 @@ BPlusViewer::BPlusViewer(ArbolBPlus* arbol, QWidget* parent)
 
     scrollArea = new QScrollArea(this);
     scrollArea->setWidget(imagenLabel);
-    scrollArea->setWidgetResizable(true); // la imagen se adapta al área
+    scrollArea->setWidgetResizable(true);
     layout->addWidget(scrollArea);
 
     setLayout(layout);
 }
 
 void BPlusViewer::actualizarVista() {
-    std::string dotFile = "arbolBPlus.dot";
-    std::string pngFile = "arbolBPlus.png";
+    std::string dotFile = "bplus_viewer.dot";
+    std::string svgFile = "bplus_viewer.svg";
 
     if (!ExportarDotBPlus::generarArchivo(*arbol, dotFile)) {
         return;
     }
 
-    std::string comando = "dot -Tpng " + dotFile + " -o " + pngFile;
+    std::string comando = "dot -Tsvg " + dotFile + " -o " + svgFile;
     int resultado = system(comando.c_str());
 
     if (resultado == 0) {
-        QPixmap pix(QString::fromStdString(pngFile));
+        QPixmap pix(QString::fromStdString(svgFile));
         if (!pix.isNull()) {
-            imagenOriginal = pix; // guarda la imagen original
+            imagenOriginal = pix;
             imagenLabel->setPixmap(imagenOriginal.scaled(
                 imagenOriginal.size() * escala,
                 Qt::KeepAspectRatio,
@@ -42,6 +43,7 @@ void BPlusViewer::actualizarVista() {
             ));
         }
     }
+    std::remove(dotFile.c_str());
 }
 
 void BPlusViewer::wheelEvent(QWheelEvent* event) {

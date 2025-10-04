@@ -57,7 +57,7 @@ add_executable(Biblioteca_Magica main.cpp
         ArbolB+/ArbolBPlus.cpp
         ArbolB+/NodoHoja.cpp
         ArbolB+/NodoInterno.cpp
-        include/ExportadorDotB+.h
+        include/ExportadorDotBPlus.h
         GUI/Vistas/B+/BPlusViewer.h
         GUI/Vistas/B+/BPlusViewer.cpp
         ArbolB+/B+_Buscar.cpp

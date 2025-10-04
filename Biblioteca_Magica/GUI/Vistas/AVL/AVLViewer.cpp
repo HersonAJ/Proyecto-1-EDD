@@ -20,15 +20,15 @@ AVLViewer::AVLViewer(ArbolAVL* arbol, QWidget* parent)
 }
 
 void AVLViewer::actualizarVista() {
-    std::string dotFile = "arbol.dot";
-    std::string pngFile = "arbol.png";
+    std::string dotFile = "avl_viewer.dot";
+    std::string svgFile = "avl_viewer.svg";
 
     arbol->guardarComoDOT(dotFile);
-    std::string comando = "dot -Tpng " + dotFile + " -o " + pngFile;
+    std::string comando = "dot -Tsvg " + dotFile + " -o " + svgFile;
     int resultado = system(comando.c_str());
 
     if (resultado == 0) {
-        QPixmap pix(QString::fromStdString(pngFile));
+        QPixmap pix(QString::fromStdString(svgFile));
         if (!pix.isNull()) {
             imagenOriginal = pix; // guarda la imagen original
             imagenLabel->setPixmap(imagenOriginal.scaled(

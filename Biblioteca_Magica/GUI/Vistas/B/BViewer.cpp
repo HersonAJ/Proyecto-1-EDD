@@ -1,6 +1,7 @@
 #include "BViewer.h"
 #include <QPixmap>
 #include <cstdlib>
+#include <ctime>
 #include "../../../include/ExportadorDotB.h"
 
 BViewer::BViewer(ArbolB* arbol, QWidget* parent)
@@ -14,27 +15,28 @@ BViewer::BViewer(ArbolB* arbol, QWidget* parent)
 
     scrollArea = new QScrollArea(this);
     scrollArea->setWidget(imagenLabel);
-    scrollArea->setWidgetResizable(true); // la imagen se adapta al área
+    scrollArea->setWidgetResizable(true);
     layout->addWidget(scrollArea);
 
     setLayout(layout);
 }
 
 void BViewer::actualizarVista() {
-    std::string dotFile = "arbolB.dot";
-    std::string pngFile = "arbolB.png";
+    //Nombre único para viewer (no colisiona con exportaciones)
+    std::string dotFile = "b_viewer.dot";
+    std::string svgFile = "b_viewer.svg";
 
     if (!ExportarDotB::generarArchivo(*arbol, dotFile)) {
         return;
     }
 
-    std::string comando = "dot -Tpng " + dotFile + " -o " + pngFile;
+    std::string comando = "dot -Tsvg " + dotFile + " -o " + svgFile;
     int resultado = system(comando.c_str());
 
     if (resultado == 0) {
-        QPixmap pix(QString::fromStdString(pngFile));
+        QPixmap pix(QString::fromStdString(svgFile));
         if (!pix.isNull()) {
-            imagenOriginal = pix; // guarda la imagen original
+            imagenOriginal = pix;
             imagenLabel->setPixmap(imagenOriginal.scaled(
                 imagenOriginal.size() * escala,
                 Qt::KeepAspectRatio,
@@ -42,6 +44,7 @@ void BViewer::actualizarVista() {
             ));
         }
     }
+    std::remove(dotFile.c_str());
 }
 
 void BViewer::wheelEvent(QWheelEvent* event) {

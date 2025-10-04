@@ -14,6 +14,7 @@
 #include <QInputDialog>
 #include <QLineEdit>
 #include "../include/ExportadorDotB.h"
+#include "../include/ExportadorDotBPlus.h"
 #include "Vistas/AVL/AVLViewer.h"
 #include "Vistas/B/BViewer.h"
 #include "Vistas/B+/BPlusViewer.h"
@@ -74,13 +75,17 @@ void MainWindow::createMenu() {
     connect(actionCargar, &QAction::triggered, this, &MainWindow::onCargarArchivo);
     menuArchivo->addAction(actionCargar);
 
-    QAction *actionExportar = new QAction("Exportar AVL como imagen", this);
+    QAction *actionExportar = new QAction("Exportar AVL", this);
     connect(actionExportar, &QAction::triggered, this, &MainWindow::onExportarAVL);
     menuArchivo->addAction(actionExportar);
 
     QAction *actionExportarB = new QAction("Exportar B", this);
     connect(actionExportarB, &QAction::triggered, this, &MainWindow::onExportarB);
     menuArchivo->addAction(actionExportarB);
+
+    QAction *actionExportarBPlus = new QAction("Exportar B+", this);
+    connect(actionExportarBPlus, &QAction::triggered, this, &MainWindow::onExportarBPlus);
+    menuArchivo->addAction(actionExportarBPlus);
 
     menuArchivo->addSeparator();
 
@@ -203,25 +208,33 @@ void MainWindow::onCargarArchivo() {
 void MainWindow::onExportarAVL() {
     QString ruta = QFileDialog::getSaveFileName(
         this,
-        "Guardar imagen del árbol",
+        "Guardar imagen del árbol AVL",
         "",
-        "Imagen PNG (*.png)"
+        "Imagen SVG (*.svg);;Imagen PNG (*.png)"
     );
 
     if (ruta.isEmpty()) return;
 
-    std::string dotFile = "arbol.dot";
-    std::remove(dotFile.c_str());
+    //Nombre único con timestamp para evitar solapamientos
+    std::string timestamp = std::to_string(std::time(nullptr));
+    std::string dotFile = "arbol_export_" + timestamp + ".dot";
+
+    //Determinar formato basado en extensión del archivo
+    std::string formato = (ruta.endsWith(".svg", Qt::CaseInsensitive)) ? "svg" : "png";
+
     arbol.guardarComoDOT(dotFile);
 
-    std::string comando = "dot -Tpng " + dotFile + " -o \"" + ruta.toStdString() + "\"";
+    std::string comando = "dot -T" + formato + " " + dotFile + " -o \"" + ruta.toStdString() + "\"";
     int resultado = system(comando.c_str());
 
+    // Limpiar archivo temporal DOT
+    std::remove(dotFile.c_str());
+
     if (resultado == 0) {
-        appendLog("Imagen exportada: " + ruta.toStdString(), "Ok");
-        QMessageBox::information(this, "Éxito", "Árbol exportado correctamente.");
+        appendLog("Árbol AVL exportado: " + ruta.toStdString() + " (" + formato + ")", "ok");
+        QMessageBox::information(this, "Éxito", "Árbol AVL exportado correctamente.");
     } else {
-        appendLog("Error al generar la imagen.", "error");
+        appendLog("Error al generar la imagen del árbol AVL.", "error");
         QMessageBox::warning(this, "Error", "No se pudo generar la imagen. Verifica que Graphviz esté instalado.");
     }
 }
@@ -330,23 +343,32 @@ void MainWindow::onExportarB() {
         this,
         "Guardar imagen del Árbol B",
         "",
-        "Imagen PNG (*.png)"
+        "Imagen SVG (*.svg);;Imagen PNG (*.png)"
     );
 
     if (ruta.isEmpty()) return;
 
-    std::string dotFile = "arbolB.dot";
+    //Nombre único con timestamp para evitar solapamientos
+    std::string timestamp = std::to_string(std::time(nullptr));
+    std::string dotFile = "arbolB_export_" + timestamp + ".dot";
+
+    // Determinar formato basado en extensión del archivo
+    std::string formato = (ruta.endsWith(".svg", Qt::CaseInsensitive)) ? "svg" : "png";
+
     if (!ExportarDotB::generarArchivo(arbolB, dotFile)) {
         appendLog("Error al generar archivo DOT del Árbol B.", "error");
         QMessageBox::warning(this, "Error", "No se pudo generar el archivo DOT.");
         return;
     }
 
-    std::string comando = "dot -Tpng " + dotFile + " -o \"" + ruta.toStdString() + "\"";
+    std::string comando = "dot -T" + formato + " " + dotFile + " -o \"" + ruta.toStdString() + "\"";
     int resultado = system(comando.c_str());
 
+    //Limpiar archivo temporal DOT
+    std::remove(dotFile.c_str());
+
     if (resultado == 0) {
-        appendLog("Imagen del Árbol B exportada: " + ruta.toStdString(), "ok");
+        appendLog("Árbol B exportado: " + ruta.toStdString() + " (" + formato + ")", "ok");
         QMessageBox::information(this, "Éxito", "Árbol B exportado correctamente.");
     } else {
         appendLog("Error al generar la imagen del Árbol B.", "error");
@@ -354,6 +376,48 @@ void MainWindow::onExportarB() {
     }
 }
 
+void MainWindow::onExportarBPlus() {
+    if (arbolBPlus.getRaiz() == nullptr) {
+        appendLog("El árbol B+ está vacío. No hay nada que exportar.", "error");
+        return;
+    }
+
+    QString ruta = QFileDialog::getSaveFileName(
+        this,
+        "Guardar imagen del Árbol B+",
+        "",
+        "Imagen SVG (*.svg);;Imagen PNG (*.png)"
+    );
+
+    if (ruta.isEmpty()) return;
+
+    //Nombre único con timestamp para evitar solapamientos
+    std::string timestamp = std::to_string(std::time(nullptr));
+    std::string dotFile = "arbolBPlus_export_" + timestamp + ".dot";
+
+    //Determinar formato basado en extensión del archivo
+    std::string formato = (ruta.endsWith(".svg", Qt::CaseInsensitive)) ? "svg" : "png";
+
+    if (!ExportarDotBPlus::generarArchivo(arbolBPlus, dotFile)) {
+        appendLog("Error al generar archivo DOT del Árbol B+.", "error");
+        QMessageBox::warning(this, "Error", "No se pudo generar el archivo DOT.");
+        return;
+    }
+
+    std::string comando = "dot -T" + formato + " " + dotFile + " -o \"" + ruta.toStdString() + "\"";
+    int resultado = system(comando.c_str());
+
+    //Limpiar archivo temporal DOT
+    std::remove(dotFile.c_str());
+
+    if (resultado == 0) {
+        appendLog("Árbol B+ exportado: " + ruta.toStdString() + " (" + formato + ")", "ok");
+        QMessageBox::information(this, "Éxito", "Árbol B+ exportado correctamente.");
+    } else {
+        appendLog("Error al generar la imagen del Árbol B+.", "error");
+        QMessageBox::warning(this, "Error", "No se pudo generar la imagen. Verifica que Graphviz esté instalado.");
+    }
+}
 
 void MainWindow::onBuscarPorFecha() {
     if (!arbolB.getRaiz()) {
