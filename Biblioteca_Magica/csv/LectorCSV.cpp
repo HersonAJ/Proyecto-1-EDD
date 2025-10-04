@@ -6,6 +6,7 @@
 #include "../AVL/ArbolAVL.h"
 #include "../include/Recorridos.h"
 #include "../ArbolB/ListaLibros.h"
+#include <regex>
 
 std::string* parseCSVLine(const std::string& linea, int& cantidad) {
     std::string* campos = new std::string[10];
@@ -144,6 +145,27 @@ void LectorCSV::procesarArchivo() {
         fecha  = limpiarCampo(fecha);
         autor  = limpiarCampo(autor);
 
+        // OPCIÓN A: Validación ESTRICTA con formato ISBN específico (COMENTADA)
+
+        if (!validarISBN(isbn)) {
+            log("Error en línea " + std::to_string(numLinea) + ": ISBN con formato inválido: " + isbn);
+            log("Formato esperado: xxx-xx-xxx-xxxx-x (13 dígitos)");
+            continue;
+        }
+
+        /*
+        // OPCIÓN B: Validación BÁSICA - solo verificar que no esté vacío (ACTIVA)
+        if (isbn.empty()) {
+            log("Error en línea " + std::to_string(numLinea) + ": ISBN vacío");
+            continue;
+        }*/
+
+        // VALIDACIÓN DE FECHA (siempre activa)
+        if (!validarFecha(fecha)) {
+            log("Error en línea " + std::to_string(numLinea) + ": Fecha inválida: " + fecha);
+            log("La fecha debe ser un número positivo");
+            continue;
+        }
 
         Libro* libroGlobal = new Libro(titulo, isbn, genero, fecha, autor);  // Para IndiceISBN global
         Libro* libroAVL = new Libro(titulo, isbn, genero, fecha, autor);     // Para Árbol AVL
@@ -152,7 +174,6 @@ void LectorCSV::procesarArchivo() {
 
         // Guardar la copia del B+ en la lista temporal
         librosTemporales.insertar(libroBPlus);
-
 
         std::cout << "Insertando en Árbol B - Fecha: '" << fecha << "' -> " << libroB->getFechaInt() << std::endl;
         arbolBPlus.insertarSoloGenero(genero);
@@ -163,8 +184,6 @@ void LectorCSV::procesarArchivo() {
 
         arbolB.verificarDuplicados();
         ArbolBPlus::recorrerEstructura(arbolBPlus.getRaiz());
-
-        //RecorridosAVL<NodoAVL>::inOrden(arbol.getRaiz());
 
         log("Línea " + std::to_string(numLinea) + " válida: " + titulo + ", " + isbn + ", " + genero + ", " + fecha + ", " + autor);
     }
@@ -179,27 +198,30 @@ void LectorCSV::procesarArchivo() {
 }
 
 // agregarLibroIndividual
-bool LectorCSV::agregarLibroIndividual(const std::string& titulo,
-                                      const std::string& isbn,
-                                      const std::string& genero,
-                                      const std::string& fecha,
-                                      const std::string& autor) {
+bool LectorCSV::agregarLibroIndividual(const std::string& titulo, const std::string& isbn, const std::string& genero, const std::string& fecha, const std::string& autor) {
+
+    // OPCIÓN A: Validación ESTRICTA con formato ISBN específico (COMENTADA)
+    if (!validarISBN(isbn)) {
+        log("Error: ISBN con formato inválido: " + isbn);
+        log("Formato esperado: xxx-xx-xxx-xxxx-x (13 dígitos)");
+        return false;
+    }
+    /*//OPCIÓN B: Validación BÁSICA - solo verificar que no esté vacío (ACTIVA)
+    if (isbn.empty()) {
+        log("Error: ISBN vacío");
+        return false;
+    }*/
+
+    // VALIDACIÓN DE FECHA (siempre activa)
+    if (!validarFecha(fecha)) {
+        log("Error: Fecha inválida: " + fecha);
+        log("La fecha debe ser un número positivo");
+        return false;
+    }
 
     // Validar que el ISBN no exista
     if (indiceISBN.buscar(isbn)) {
         log("Error: El ISBN '" + isbn + "' ya existe");
-        return false;
-    }
-
-    // Validar fecha numérica
-    try {
-        int año = std::stoi(fecha);
-        if (año <= 0) {
-            log("Error: La fecha debe ser un año válido positivo");
-            return false;
-        }
-    } catch (const std::exception& e) {
-        log("Error: La fecha debe ser un año válido numérico");
         return false;
     }
 
@@ -232,6 +254,24 @@ bool LectorCSV::agregarLibroIndividual(const std::string& titulo,
 
     } catch (const std::exception& e) {
         log("Error excepción al agregar libro: " + std::string(e.what()));
+        return false;
+    }
+}
+
+bool LectorCSV::validarISBN(const std::string& isbn) {
+    // Formato: xxx-xx-xxx-xxxx-x (ISBN-13)
+    // Ejemplos válidos:
+    // - 978-84-376-0494-7
+    std::regex patronISBN(R"(^\d{3}-\d{1,5}-\d{1,7}-\d{1,7}-\d{1}$)");
+    return std::regex_match(isbn, patronISBN);
+}
+
+bool LectorCSV::validarFecha(const std::string& fecha) {
+    // Solo verificar que sea número positivo
+    try {
+        int año = std::stoi(fecha);
+        return año >= 0;  //Cualquier número positivo
+    } catch (const std::exception& e) {
         return false;
     }
 }
