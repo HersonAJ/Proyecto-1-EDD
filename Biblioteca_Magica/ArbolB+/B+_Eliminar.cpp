@@ -22,45 +22,6 @@ bool ArbolBPlus::buscarPosicionGenero(const std::string& genero, NodoHoja** hoja
     return false;
 }
 
-/*void ArbolBPlus::eliminarPorISBN(const std::string& isbn, IndiceISBN& indiceGeneral) {
-    // Paso 1: Buscar el libro en el índice general por ISBN
-    Libro* libro = indiceGeneral.buscar(isbn);
-
-    if (!libro) {
-        std::cout << "Libro con ISBN '" << isbn << "' no encontrado." << std::endl;
-        return;
-    }
-
-    // Paso 2: Obtener el género del libro
-    std::string genero = libro->getGenero();
-
-    // Paso 3: Buscar la posición del género en el B+
-    NodoHoja* hoja;
-    int posicion;
-    bool generoEncontrado = buscarPosicionGenero(genero, &hoja, posicion);
-
-    if (!generoEncontrado) {
-        std::cout << "Género '" << genero << "' no encontrado en el árbol B+." << std::endl;
-        return;
-    }
-
-    std::cout << "Eliminando libro '" << libro->getTitulo()
-              << "' del género '" << genero << "'" << std::endl;
-
-    // Paso 4: Eliminar el libro del AVL específico
-    hoja->entradas[posicion].indiceISBN.eliminar(isbn);
-
-    // Paso 5: Verificar si el AVL quedó vacío después de eliminar
-    if (hoja->entradas[posicion].indiceISBN.estaVacio()) {
-        std::cout << "AVL del género '" << genero << "' quedó vacío. Eliminando género del B+." << std::endl;
-
-        // Aquí llamaremos al método para eliminar el género del B+
-        // (lo implementaremos después)
-        eliminarGeneroDeHoja(hoja, posicion);
-    }
-}
-*/
-
 void ArbolBPlus::eliminarPorISBN(const std::string& isbn, const std::string& genero) {
     // Ya no busca en indiceGeneral, recibe el género directamente
 
@@ -83,10 +44,10 @@ void ArbolBPlus::eliminarPorISBN(const std::string& isbn, const std::string& gen
               << "' del género '" << genero << "'" << std::endl;
 
     // Eliminar el libro del AVL específico
-    hoja->entradas[posicion].indiceISBN.eliminar(isbn);
+    hoja->entradas[posicion].indiceISBN->eliminar(isbn);
 
     // Verificar si el AVL quedó vacío después de eliminar
-    if (hoja->entradas[posicion].indiceISBN.estaVacio()) {
+    if (hoja->entradas[posicion].indiceISBN->estaVacio()) {
         std::cout << "AVL del género '" << genero << "' quedó vacío. Eliminando género del B+." << std::endl;
         eliminarGeneroDeHoja(hoja, posicion);
     }
@@ -108,7 +69,7 @@ void ArbolBPlus::eliminarGeneroDeHoja(NodoHoja* hoja, int posicion) {
 
     // Eliminar la entrada desplazando las demás
     for (int i = posicion; i < hoja->numClaves - 1; i++) {
-        hoja->entradas[i] = hoja->entradas[i + 1];
+        hoja->entradas[i] = std::move(hoja->entradas[i + 1]);
     }
     hoja->numClaves--;
 
@@ -186,7 +147,6 @@ void ArbolBPlus::balancearHoja(NodoHoja* hoja) {
     }
     std::cout << "[DEBUG] balancearHoja FIN" << std::endl;
 }
-
 void ArbolBPlus::redistribuirHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInterno* padre, int posClavePadre) {
     std::cout << "Redistribuyendo entradas entre hojas hermanas." << std::endl;
 
@@ -200,13 +160,13 @@ void ArbolBPlus::redistribuirHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInt
 
         // Mover entradas de derecha a izquierda
         for (int i = 0; i < necesarias; i++) {
-            hojaIzq->entradas[hojaIzq->numClaves] = hojaDer->entradas[i];
+            hojaIzq->entradas[hojaIzq->numClaves] = std::move(hojaDer->entradas[i]);
             hojaIzq->numClaves++;
         }
 
         // Desplazar entradas en hoja derecha
         for (int i = 0; i < hojaDer->numClaves - necesarias; i++) {
-            hojaDer->entradas[i] = hojaDer->entradas[i + necesarias];
+            hojaDer->entradas[i] = std::move(hojaDer->entradas[i + necesarias]);
         }
         hojaDer->numClaves -= necesarias;
 
@@ -215,12 +175,12 @@ void ArbolBPlus::redistribuirHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInt
 
         // Hacer espacio en hoja derecha
         for (int i = hojaDer->numClaves - 1; i >= 0; i--) {
-            hojaDer->entradas[i + sobrantes] = hojaDer->entradas[i];
+            hojaDer->entradas[i + sobrantes] = std::move(hojaDer->entradas[i]);
         }
 
         // Mover entradas de izquierda a derecha
         for (int i = 0; i < sobrantes; i++) {
-            hojaDer->entradas[i] = hojaIzq->entradas[hojaIzq->numClaves - sobrantes + i];
+            hojaDer->entradas[i] = std::move(hojaIzq->entradas[hojaIzq->numClaves - sobrantes + i]);
         }
         hojaDer->numClaves += sobrantes;
         hojaIzq->numClaves -= sobrantes;
@@ -234,7 +194,7 @@ void ArbolBPlus::fusionarHojas(NodoHoja* hojaIzq, NodoHoja* hojaDer, NodoInterno
 
     // Mover todas las entradas de hojaDer a hojaIzq (copia completa)
     for (int i = 0; i < hojaDer->numClaves; i++) {
-        hojaIzq->entradas[hojaIzq->numClaves] = hojaDer->entradas[i];
+        hojaIzq->entradas[hojaIzq->numClaves] = std::move(hojaDer->entradas[i]);
         hojaIzq->numClaves++;
     }
 

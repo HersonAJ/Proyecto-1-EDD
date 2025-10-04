@@ -9,7 +9,9 @@ ListaLibros* ArbolBPlus::buscarPorGenero(const std::string& genero) const {
 
     for (int i = 0; i < hoja->numClaves; i++) {
         if (hoja->entradas[i].genero == genero) {
-            recorrerAVLyAgregarLibros(hoja->entradas[i].indiceISBN.getRaiz(), resultados);
+            if (hoja->entradas[i].indiceISBN != nullptr) {
+                recorrerAVLyAgregarLibros(hoja->entradas[i].indiceISBN->getRaiz(), resultados);
+            }
             break;
         }
     }

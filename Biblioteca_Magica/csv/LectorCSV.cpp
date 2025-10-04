@@ -8,29 +8,28 @@
 #include "../ArbolB/ListaLibros.h"
 #include <regex>
 
-std::string* parseCSVLine(const std::string& linea, int& cantidad) {
-    std::string* campos = new std::string[10];
-    cantidad = 0;
+std::vector<std::string> parseCSVLine(const std::string& linea) {
+    std::vector<std::string> campos;
     std::string campo;
     bool dentroComillas = false;
 
-    for (size_t i = 0; i <linea.size(); i++) {
+    for (size_t i = 0; i < linea.size(); i++) {
         char c = linea[i];
-
         if (c == '"') {
             dentroComillas = !dentroComillas;
             campo.push_back(c);
         } else if (c == ',' && !dentroComillas) {
-            campos[cantidad++] = campo;
+            campos.push_back(campo);
             campo.clear();
         } else {
             campo.push_back(c);
         }
     }
 
-    campos[cantidad++] = campo;
+    campos.push_back(campo);
     return campos;
 }
+
 
 
 bool LectorCSV::tieneComillasValidas(const std::string& campoOriginal) {
@@ -107,9 +106,9 @@ void LectorCSV::procesarArchivo() {
         if (linea.empty()) continue;
 
         int cantidad = 0;
-        std::string* campos = parseCSVLine(linea, cantidad);
+        auto campos = parseCSVLine(linea);
 
-        if (cantidad != 5) {
+        if (campos.size() != 5) {
             log("Error en línea " + std::to_string(numLinea) + ": número incorrecto de campos. Se esperaban 5.");
             log("Contenido: " + linea);
             std::cerr << "Error en línea " << numLinea << ": número incorrecto de campos. Se esperaban 5." << std::endl;
