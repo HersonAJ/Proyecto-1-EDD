@@ -7,6 +7,7 @@ Catalogo::~Catalogo() {
     while (actual != nullptr) {
         Nodo* temp = actual;
         actual = actual->siguiente;
+        delete temp->libro;  //LIBERAR EL LIBRO
         delete temp;
     }
 }

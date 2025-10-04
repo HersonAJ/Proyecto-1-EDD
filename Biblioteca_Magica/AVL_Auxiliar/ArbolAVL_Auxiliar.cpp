@@ -13,6 +13,7 @@ void IndiceISBN::destruirRecursivo(const NodoIndiceISBN* nodo) {
     if (nodo) {
         destruirRecursivo(nodo->izquierdo);
         destruirRecursivo(nodo->derecho);
+        delete nodo->libro;  // LIBERAR EL LIBRO
         delete nodo;
     }
 }
