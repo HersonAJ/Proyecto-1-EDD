@@ -17,6 +17,7 @@
 #include "Vistas/Rendimiento/PruebaRendimiento.h"
 #include "../csv/LectorCSV.h"
 #include "Vistas/OrdenAlfabetico/ListadoAlfabetico.h"
+#include "Vistas/Busqueda/BusquedaUnificada.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -29,11 +30,7 @@ private slots:
     void onExportarAVL();
     void onExportarB();
     void onExportarBPlus();
-    void onBuscarPorTitulo();
     void onEliminarLibro();
-    void onBuscarPorFecha();
-    void onBuscarPorGenero();
-    void onBuscarPorISBN();
     void onAgregarLibro();
 
 private:
@@ -54,6 +51,7 @@ private:
     BPlusViewer* bPlusViewer;
     PruebaRendimiento* rendimiento;
     ListadoAlfabetico* listadoAlfabetico;
+    BusquedaUnificada* busquedaUnificada;
 };
 
 #endif // MAINWINDOW_H

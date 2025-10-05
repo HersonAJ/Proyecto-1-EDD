@@ -59,6 +59,10 @@ MainWindow::MainWindow(QWidget *parent)
     bPlusViewer = new BPlusViewer(&arbolBPlus, this);
     tabs->addTab(bPlusViewer, "BPlus");
 
+    busquedaUnificada = new BusquedaUnificada(&arbol, &indiceISBN, &arbolB, &arbolBPlus,[this](const std::string& mensaje, const QString& tipo) {
+        this->appendLog(mensaje, tipo);},this);
+    tabs->addTab(busquedaUnificada, "Busqueda");
+
     rendimiento = new PruebaRendimiento(&arbol, &indiceISBN, &catalogoGlobal, this);
     tabs->addTab(rendimiento, "Rendimiento");
 
@@ -107,24 +111,12 @@ void MainWindow::createMenu() {
     connect(actionEliminar, &QAction::triggered, this, &MainWindow::onEliminarLibro);
     menuLibros->addAction(actionEliminar);
 
-    QMenu *menuBuscar = new QMenu("Buscar libro", this);
-    QAction *actionBuscarTitulo = new QAction("Por título", this);
-    connect(actionBuscarTitulo, &QAction::triggered, this, &MainWindow::onBuscarPorTitulo);
+    QAction *actionBuscarUnificado = new QAction("Buscar un libro", this);
+    connect(actionBuscarUnificado, &QAction::triggered, this, [this]() {
+       tabs->setCurrentWidget(busquedaUnificada);
+    });
 
-    QAction* actionBuscarFecha = new QAction("Por año de publicacion rango", this);
-    connect(actionBuscarFecha, &QAction::triggered, this, &MainWindow::onBuscarPorFecha);
-
-    QAction* actionBuscarPorGenero = new QAction("Por Genero", this);
-    connect(actionBuscarPorGenero, &QAction::triggered, this, &MainWindow::onBuscarPorGenero);
-
-    QAction* actionBuscarISBN = new QAction("Por ISBN", this);
-    connect(actionBuscarISBN, &QAction::triggered, this, &MainWindow::onBuscarPorISBN);
-
-    menuBuscar->addAction(actionBuscarFecha);
-    menuBuscar->addAction(actionBuscarTitulo);
-    menuBuscar->addAction(actionBuscarISBN);
-    menuBuscar->addAction(actionBuscarPorGenero);
-    menuLibros->addMenu(menuBuscar);
+    menuLibros->addAction(actionBuscarUnificado);
 
     //Menu Visualizacion
     QMenu *menuVisualizacion = new QMenu("Visualización", this);
@@ -250,66 +242,6 @@ void MainWindow::onExportarAVL() {
     }
 }
 
-void MainWindow::onBuscarPorTitulo() {
-    if (arbol.estaVacio()) {
-        appendLog("El árbol está vacío. Cargue datos antes de buscar.", "error");
-        return;
-    }
-
-    bool ok;
-    QString titulo = QInputDialog::getText(this, "Buscar por título",
-                                           "Título del libro:", QLineEdit::Normal,
-                                           "", &ok);
-    if (!ok || titulo.isEmpty()) return;
-
-    // primera coincidencia
-    Libro* primerEncontrado = arbol.buscarPorTitulo(titulo.toStdString());
-
-    // lista completa de coincidencias
-    ListaEncontados* lista = arbol.buscarTodosPorTitulo(titulo.toStdString());
-    Nodo* actual = lista->getCabeza();
-
-    if (primerEncontrado && actual) {
-        QMessageBox::information(this, "Resultados", "Se encontraron coincidencias.");
-
-        // salto de línea antes de mostrar resultados
-        appendLog("\n--- Resultados de búsqueda ---", "ok");
-
-        // primer resultado
-        appendLog("Primer libro encontrado:\n " + primerEncontrado->toString(), "ok");
-
-        // otras coincidencias
-        int contador = 0;
-        actual = lista->getCabeza();
-
-        QString encabezado = "Otras coincidencias:";
-        bool hayOtras = false;
-
-        while (actual) {
-            if (actual->libro != primerEncontrado) {
-                if (!hayOtras) {
-                    appendLog(encabezado.toStdString(), "ok");
-                    hayOtras = true;
-                }
-                contador++;
-                appendLog((QString::number(contador) + ". " +
-                           QString::fromStdString(actual->libro->toString())).toStdString(), "ok");
-            }
-            actual = actual->siguiente;
-        }
-
-        if (!hayOtras) {
-            appendLog("No hay otras coincidencias.", "info");
-        }
-
-    } else {
-        appendLog("No se encontró el libro con el título: " + titulo.toStdString(), "error");
-        QMessageBox::warning(this, "Sin resultados", "No se encontró el libro.");
-    }
-
-    delete lista;
-}
-
 void MainWindow::onEliminarLibro() {
     if (arbol.estaVacio()) {
         appendLog("El árbol está vacío. No hay libros para eliminar.", "error");
@@ -427,134 +359,6 @@ void MainWindow::onExportarBPlus() {
     } else {
         appendLog("Error al generar la imagen del Árbol B+.", "error");
         QMessageBox::warning(this, "Error", "No se pudo generar la imagen. Verifica que Graphviz esté instalado.");
-    }
-}
-
-void MainWindow::onBuscarPorFecha() {
-    if (!arbolB.getRaiz()) {
-        appendLog("El arbol B esta vacio. Cargue datos antes de buscar.", "error");
-        return;
-    }
-
-    //dialogo para el año inicial
-    bool ok1;
-    int inicio = QInputDialog::getInt(this, "Rango de fechas - Inicio", "Año inicial: ", 2000, 0, 100000, 1, &ok1);
-    if (!ok1) return;;
-
-    //dialogo para el año final
-    bool ok2;
-    int fin = QInputDialog::getInt(this, "Rango de fechas - Fin", "Año final: ", 2020, inicio, 100000, 1, &ok2);
-    if (!ok2) return;
-
-    //validar rango
-    if (inicio > fin) {
-        appendLog("Error: El año inicial no puede ser mayor al año final,", "error");
-        QMessageBox::warning(this, "Error", "El año inicial no puede ser mayor al año final.");
-        return;
-    }
-
-    //realizar busqueda por rango
-    ListaLibros* resultados = arbolB.buscarPorRango(inicio, fin);
-
-    if (resultados->getTamaño() > 0) {
-        std::string encabezado = "\n\n Se encontraron " + std::to_string(resultados->getTamaño()) + " Libros entre " + std::to_string(inicio) + " y " +
-            std::to_string(fin) + ":\n";
-        appendLog(encabezado, "warning");
-
-        //recorrer resultados
-        std::string mensaje = "";
-        ListaLibros::Interador iter = resultados->obtenerIterador();
-        while (iter.tieneSiguiente()) {
-            Libro* libro = iter.siguiente();
-            mensaje += "- " + libro->toString() + "\n";
-        }
-
-        appendLog(mensaje, "ok");
-
-        //Mostrar resultado en QMessageBox
-        QMessageBox::information(this, "Resultado de la busqueda ", QString::fromStdString("Encontrados: " + std::to_string(resultados->getTamaño()) +
-            "libros\nUse el log para ver detalles"));
-    } else {
-        appendLog("No se encontraron libros entre " + std::to_string(inicio) + " y " + std::to_string(fin), "error");
-        QMessageBox::information(this, "Sin resultados", "No se encontraron libros en ese rango de fechas.");
-    }
-
-    delete resultados;
-}
-
-void MainWindow::onBuscarPorGenero() {
-    if (arbolBPlus.getRaiz() == nullptr) {
-        appendLog("El árbol B+ está vacío. Cargue datos antes de buscar.", "error");
-        return;
-    }
-
-    // Diálogo para ingresar el género
-    bool ok;
-    QString generoQ = QInputDialog::getText(this, "Buscar por género",
-                                            "Ingrese el género:", QLineEdit::Normal,
-                                            "", &ok);
-    if (!ok || generoQ.isEmpty()) return;
-
-    std::string genero = generoQ.toStdString();
-
-    // Realizar búsqueda en el B+
-    ListaLibros* resultados = arbolBPlus.buscarPorGenero(genero);
-
-    if (resultados->getTamaño() > 0) {
-        std::string encabezado = "\n\nSe encontraron " + std::to_string(resultados->getTamaño()) +
-                                 " libros en el género '" + genero + "':\n";
-        appendLog(encabezado, "warning");
-
-        // Recorrer resultados
-        std::string mensaje;
-        ListaLibros::Interador iter = resultados->obtenerIterador();
-        while (iter.tieneSiguiente()) {
-            Libro* libro = iter.siguiente();
-            mensaje += "- " + libro->toString() + "\n";
-        }
-
-        appendLog(mensaje, "ok");
-
-        QMessageBox::information(this, "Resultado de la búsqueda",
-                                 QString::fromStdString("Encontrados: " +
-                                 std::to_string(resultados->getTamaño()) +
-                                 " libros\n"));
-    } else {
-        appendLog("No se encontraron libros en el género '" + genero + "'", "error");
-        QMessageBox::information(this, "Sin resultados",
-                                 QString::fromStdString("No se encontraron libros en el género '" + genero + "'."));
-    }
-
-    delete resultados;
-}
-
-void MainWindow::onBuscarPorISBN() {
-    if (indiceISBN.estaVacio()) {
-        appendLog("El índice ISBN está vacío. Cargue datos antes de buscar.", "error");
-        return;
-    }
-
-    bool ok;
-    QString isbn = QInputDialog::getText(this, "Buscar por ISBN",
-                                         "ISBN del libro:", QLineEdit::Normal,
-                                         "", &ok);
-    if (!ok || isbn.isEmpty()) return;
-
-    std::string isbnStr = isbn.toStdString();
-
-    // Búsqueda binaria en el IndiceISBN (AVL)
-    Libro* libroEncontrado = indiceISBN.buscar(isbnStr);
-
-    if (libroEncontrado) {
-        appendLog("\n--- Resultado de búsqueda por ISBN ---", "ok");
-        appendLog("Libro encontrado:\n" + libroEncontrado->toString(), "ok");
-
-        QMessageBox::information(this, "Libro encontrado",
-                                "Se encontró el libro con ISBN: " + isbn);
-    } else {
-        appendLog("No se encontró ningún libro con ISBN: " + isbnStr, "error");
-        QMessageBox::warning(this, "Sin resultados",
-                            "No se encontró ningún libro con ese ISBN.");
     }
 }
 

@@ -66,6 +66,8 @@ add_executable(Biblioteca_Magica main.cpp
         GUI/Vistas/Rendimiento/PruebaRendimiento.cpp
         GUI/Vistas/OrdenAlfabetico/ListadoAlfabetico.h
         GUI/Vistas/OrdenAlfabetico/ListadoAlfabetico.cpp
+        GUI/Vistas/Busqueda/BusquedaUnificada.h
+        GUI/Vistas/Busqueda/BusquedaUnificada.cpp
 )
 target_link_libraries(Biblioteca_Magica
         Qt5::Core
