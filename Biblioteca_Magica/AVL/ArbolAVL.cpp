@@ -118,3 +118,22 @@ NodoAVL *ArbolAVL::balancear(NodoAVL *nodo) {
 
     return nodo;
 }
+
+void ArbolAVL::recorrerEnOrdenRecursivo(NodoAVL* nodo, ListaLibros* lista) const {
+    if (nodo == nullptr) return;
+
+    //recorrer sub arbol izquierdo menores
+    recorrerEnOrdenRecursivo(nodo->izquierdo, lista);
+
+    //agregar libro actual a la lista
+    lista->insertar(nodo->libro);
+
+    //recorrer sub arbol derecho mayores
+    recorrerEnOrdenRecursivo(nodo->derecho, lista);
+}
+
+ListaLibros *ArbolAVL::obtenerLibrosEnOrdenAlfabetico() const {
+    ListaLibros* lista = new ListaLibros();
+    recorrerEnOrdenRecursivo(raiz, lista);
+    return lista;
+}

@@ -46,6 +46,9 @@ MainWindow::MainWindow(QWidget *parent)
     tabs = new QTabWidget(this);
     tabs->addTab(logWidget, "Log");
 
+    listadoAlfabetico = new ListadoAlfabetico(&arbol, this);
+    tabs->addTab(listadoAlfabetico, "Listado Alfabetico");
+
     // Crear viewer AVL y agregarlo como pestaña
     avlViewer = new AVLViewer(&arbol, this);
     tabs->addTab(avlViewer, "AVL");
@@ -125,6 +128,12 @@ void MainWindow::createMenu() {
 
     //Menu Visualizacion
     QMenu *menuVisualizacion = new QMenu("Visualización", this);
+
+    QAction *actionVerListado = new QAction("Ver Listado Alfabético", this);
+    connect(actionVerListado, &QAction::triggered, this, [this]() {
+        listadoAlfabetico->cargarDatosEnTabla();
+        tabs->setCurrentWidget(listadoAlfabetico);
+    });
     QAction *actionVerAVL = new QAction("Ver AVL", this);
     connect(actionVerAVL, &QAction::triggered, this, [this]() {
         avlViewer->actualizarVista();            // refresca la imagen
@@ -147,6 +156,8 @@ void MainWindow::createMenu() {
     connect(actionCompararRendimiento, &QAction::triggered, this, [this]() {
         tabs->setCurrentWidget(rendimiento);
     });
+
+    menuVisualizacion->addAction(actionVerListado);
     menuVisualizacion->addAction(actionVerB);
     menuVisualizacion->addAction(actionVerAVL);
     menuVisualizacion->addAction(actionVerBPlus);

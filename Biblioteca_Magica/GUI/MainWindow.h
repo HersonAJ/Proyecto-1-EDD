@@ -16,6 +16,7 @@
 #include "../Modelos/Catalogo.h"
 #include "Vistas/Rendimiento/PruebaRendimiento.h"
 #include "../csv/LectorCSV.h"
+#include "Vistas/OrdenAlfabetico/ListadoAlfabetico.h"
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -52,6 +53,7 @@ private:
     BViewer* bViewer;
     BPlusViewer* bPlusViewer;
     PruebaRendimiento* rendimiento;
+    ListadoAlfabetico* listadoAlfabetico;
 };
 
 #endif // MAINWINDOW_H

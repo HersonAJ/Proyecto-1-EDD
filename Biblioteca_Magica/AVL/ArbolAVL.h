@@ -3,7 +3,8 @@
 
 #include "NodoAVL.h"
 #include <string>
-#include "ListaEncontrados.h"
+#include "ListaEncontrados.h" //lista simple para la busqueda
+#include  "../ArbolB/ListaLibros.h" //lista para la vista ordenada alfaveticamente
 
 class IndiceISBN;
 
@@ -37,6 +38,7 @@ private:
     Libro* buscarPorTituloRecursivo(NodoAVL* nodo, const std::string& titulo);
     void buscarTodosPorTituloRecursivo(NodoAVL* nodo, const std::string& titulo, ListaEncontados* lista);
 
+    void recorrerEnOrdenRecursivo(NodoAVL* nodo, ListaLibros* lista) const;
 
 public:
     ArbolAVL();
@@ -55,6 +57,7 @@ public:
 
     Libro* buscarPorTitulo(const std::string& titulo);
     ListaEncontados* buscarTodosPorTitulo(const std::string& titulo);
+    ListaLibros* obtenerLibrosEnOrdenAlfabetico() const;
 
 };
 

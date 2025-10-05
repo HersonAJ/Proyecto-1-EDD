@@ -64,6 +64,8 @@ add_executable(Biblioteca_Magica main.cpp
         ArbolB+/B+_Eliminar.cpp
         GUI/Vistas/Rendimiento/PruebaRendimiento.h
         GUI/Vistas/Rendimiento/PruebaRendimiento.cpp
+        GUI/Vistas/OrdenAlfabetico/ListadoAlfabetico.h
+        GUI/Vistas/OrdenAlfabetico/ListadoAlfabetico.cpp
 )
 target_link_libraries(Biblioteca_Magica
         Qt5::Core
