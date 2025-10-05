@@ -206,6 +206,7 @@ void MainWindow::onCargarArchivo() {
 
     appendLog("Archivo procesado correctamente.");
     QMessageBox::information(this, "Éxito", "Archivo cargado y procesado correctamente.");
+    actualizarTodasLasVistas();
 }
 
 void MainWindow::onExportarAVL() {
@@ -279,6 +280,7 @@ void MainWindow::onEliminarLibro() {
 
     appendLog("Libro eliminado con ISBN: " + isbnStr, "ok");
     QMessageBox::information(this, "Eliminado", "El libro ha sido eliminado correctamente.");
+    actualizarTodasLasVistas();
 }
 
 void MainWindow::onExportarB() {
@@ -423,9 +425,7 @@ void MainWindow::onAgregarLibro() {
 
     if (exito) {
         // Actualizar vistas
-        avlViewer->actualizarVista();
-        bViewer->actualizarVista();
-        bPlusViewer->actualizarVista();
+        actualizarTodasLasVistas();
 
         appendLog("Libro agregado manualmente: " + tituloStr + " - ISBN: " + isbnStr, "ok");
         QMessageBox::information(this, "Éxito", "Libro agregado correctamente al sistema.");
@@ -433,4 +433,11 @@ void MainWindow::onAgregarLibro() {
         appendLog("Error al agregar libro manualmente: " + tituloStr, "error");
         QMessageBox::warning(this, "Error", "No se pudo agregar el libro. Verifique que el ISBN no exista y los datos sean válidos.");
     }
+}
+void MainWindow::actualizarTodasLasVistas() {
+    //arboles
+    avlViewer->actualizarVista();
+    bViewer->actualizarVista();
+    bPlusViewer->actualizarVista();
+    listadoAlfabetico->cargarDatosEnTabla();
 }

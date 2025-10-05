@@ -32,6 +32,7 @@ private slots:
     void onExportarBPlus();
     void onEliminarLibro();
     void onAgregarLibro();
+    void actualizarTodasLasVistas();
 
 private:
     void createMenu();

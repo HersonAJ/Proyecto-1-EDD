@@ -226,10 +226,8 @@ void BusquedaUnificada::buscarPorTitulo(const std::string& titulo) {
             appendLog("No hay otras coincidencias.", "info");
         }
 
-        QMessageBox::information(this, "Resultados", "Se encontraron coincidencias.");
     } else {
         appendLog("No se encontró el libro con el título: " + titulo, "error");
-        QMessageBox::warning(this, "Sin resultados", "No se encontró el libro.");
     }
 
     llenarTablaDesdeListaEncontados(resultados);
@@ -249,10 +247,8 @@ void BusquedaUnificada::buscarPorISBN(const std::string& isbn) {
 
     if (resultado) {
         appendLog("Libro encontrado:\n" + resultado->toString(), "ok");
-        QMessageBox::information(this, "Libro encontrado", "Se encontró el libro con ISBN: " + QString::fromStdString(isbn));
     } else {
         appendLog("No se encontró ningún libro con ISBN: " + isbn, "error");
-        QMessageBox::warning(this, "Sin resultados", "No se encontró ningún libro con ese ISBN.");
     }
 
     llenarTablaDesdeLibroUnico(resultado);
@@ -283,14 +279,8 @@ void BusquedaUnificada::buscarPorGenero(const std::string& genero) {
         }
         appendLog(mensaje, "ok");
 
-        QMessageBox::information(this, "Resultado de la búsqueda",
-                                 QString::fromStdString("Encontrados: " +
-                                 std::to_string(resultados->getTamaño()) +
-                                 " libros"));
     } else {
         appendLog("No se encontraron libros en el género '" + genero + "'", "error");
-        QMessageBox::information(this, "Sin resultados",
-                                 QString::fromStdString("No se encontraron libros en el género '" + genero + "'."));
     }
 
     llenarTablaDesdeListaLibros(resultados);
@@ -322,12 +312,8 @@ void BusquedaUnificada::buscarPorFecha(int desde, int hasta) {
         }
         appendLog(mensaje, "ok");
 
-        QMessageBox::information(this, "Resultado de la búsqueda",
-                                QString::fromStdString("Encontrados: " + std::to_string(resultados->getTamaño()) +
-                                " libros\nUse el log para ver detalles"));
     } else {
         appendLog("No se encontraron libros entre " + std::to_string(desde) + " y " + std::to_string(hasta), "error");
-        QMessageBox::information(this, "Sin resultados", "No se encontraron libros en ese rango de fechas.");
     }
 
     llenarTablaDesdeListaLibros(resultados);
