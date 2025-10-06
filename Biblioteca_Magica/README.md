@@ -37,6 +37,26 @@ Instalación en Windows
 
 ##  Compilación
 
+# Instalar dependencias en Ubuntu/Debian
+sudo apt update
+sudo apt install cmake build-essential libfuse2
+
+# 1. Clonar o descargar el proyecto
+git clone <url-del-repositorio>
+cd Biblioteca_Magica
+
+# 2. Compilar
+mkdir build_linux && cd build_linux
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make -j4
+
+# 3. Crear AppImage (ejecutable portable)
+wget -c -O linuxdeployqt.AppImage "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
+chmod +x linuxdeployqt.AppImage
+./linuxdeployqt.AppImage Biblioteca_Magica -appimage
+# ejecutar
+./Biblioteca_Magica-x86_64.AppImage
+
 ### Requisitos de Versión (basado en tu CMakeLists.txt)
 - **CMake 4.0+**
 - **Qt 5** (Core, Gui, Widgets)
