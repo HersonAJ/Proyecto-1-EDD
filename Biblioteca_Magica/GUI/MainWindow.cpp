@@ -185,9 +185,16 @@ void MainWindow::onCargarArchivo() {
         this,
         "Seleccionar archivo CSV",
         "",
-        "Archivo CSV (*.csv);;Todos los archivos(*)");
+        "Archivo CSV (*.csv)");
 
     if (ruta.isEmpty()) return;
+
+    // Validación adicional por si acaso
+    if (!ruta.endsWith(".csv", Qt::CaseInsensitive)) {
+        QMessageBox::warning(this, "Formato incorrecto",
+                            "Por favor, seleccione únicamente archivos con extensión .csv");
+        return;
+    }
 
     std::string rutaArchivo = ruta.toStdString();
 

@@ -37,8 +37,6 @@ add_executable(Biblioteca_Magica main.cpp
         ArbolB/ListaLibros.h
         ArbolB/ListaLibros.cpp
         ArbolB/ArbolB_Eliminar.cpp
-        include/ListaRepetidos.h
-        include/ListaRepetidos.cpp
         Modelos/Catalogo.h
         Modelos/Catalogo.cpp
         GUI/Vistas/AVL/AVLViewer.h

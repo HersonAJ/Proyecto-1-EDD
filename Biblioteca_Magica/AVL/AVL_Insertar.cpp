@@ -3,6 +3,7 @@
 
 // Comparación por título + ISBN
 int ArbolAVL::compararLibros(Libro* a, Libro* b) const {
+    if (!a || !b) throw std::invalid_argument("Libro nulo en comparación");
     int cmp = a->getTitulo().compare(b->getTitulo());
     if (cmp == 0) {
         return a->getIsbn().compare(b->getIsbn());
@@ -12,8 +13,8 @@ int ArbolAVL::compararLibros(Libro* a, Libro* b) const {
 
 // Insertar nodo recursivo
 NodoAVL* ArbolAVL::insertarNodo(NodoAVL* nodo, Libro* libro) {
+    if (!libro) throw std::invalid_argument("Libro nulo en insertarNodo");
     if (nodo == nullptr) {
-        std::cout << "Insertando nuevo nodo: " << libro->getTitulo() << std::endl;
         return new NodoAVL(libro);
     }
 
@@ -24,7 +25,7 @@ NodoAVL* ArbolAVL::insertarNodo(NodoAVL* nodo, Libro* libro) {
     } else if (cmp > 0) {
         nodo->derecho = insertarNodo(nodo->derecho, libro);
     } else {
-        std::cout << "Libro repetido, incrementando ejemplares: " << libro->getTitulo() << std::endl;
+        // Libro repetido, incrementar ejemplares
         nodo->libro->incrementarCantidad();
         return nodo;
     }
@@ -32,11 +33,16 @@ NodoAVL* ArbolAVL::insertarNodo(NodoAVL* nodo, Libro* libro) {
     // Actualizar altura
     nodo->altura = 1 + std::max(altura(nodo->izquierdo), altura(nodo->derecho));
 
-    //std::cout << "Balanceado nodo: " << nodo->libro->getTitulo() << std::endl;
     return balancear(nodo);
 }
 
 // Método público
 void ArbolAVL::insertar(Libro* libro) {
-    raiz = insertarNodo(raiz, libro);
+    try {
+        if (!libro) throw std::invalid_argument("Intento de insertar libro nulo");
+        raiz = insertarNodo(raiz, libro);
+    } catch (const std::exception& e) {
+        std::cerr << "Error en ArbolAVL::insertar: " << e.what() << std::endl;
+        throw;
+    }
 }

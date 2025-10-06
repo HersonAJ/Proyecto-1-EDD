@@ -30,14 +30,13 @@ public:
             return *this;
         }
 
-        // Elimina copy (no permitido por defecto)
         EntradaGenero(const EntradaGenero&) = delete;
         EntradaGenero& operator=(const EntradaGenero&) = delete;
     };
 
     EntradaGenero* entradas; // tamaño (2*T_BPLUS - 1)
     NodoHoja* siguiente;      // enlace a la hoja siguiente (nullptr si no existe)
-    NodoHoja* anterior;       // enlace a la hoja anterior (opcional)
+    NodoHoja* anterior;       // enlace a la hoja anterior
 
     NodoHoja();
     ~NodoHoja() override;

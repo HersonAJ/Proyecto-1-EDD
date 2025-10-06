@@ -1,20 +1,27 @@
 #include "ArbolAVL.h"
 #include "../AVL_Auxiliar/IndiceISBN.h"
+#include <iostream>
+#include <stdexcept>
 
 void ArbolAVL::eliminarPorISBN(const std::string& isbn, const std::string& titulo) {
+    try {
+        if (isbn.empty()) throw std::invalid_argument("ISBN vacío en eliminación");
+        if (titulo.empty()) throw std::invalid_argument("Título vacío en eliminación");
 
-    if (titulo.empty()) {
-        return;
+        raiz = eliminarNodoEficiente(raiz, titulo, isbn);
+    } catch (const std::exception& e) {
+        std::cerr << "Error en ArbolAVL::eliminarPorISBN: " << e.what() << std::endl;
+        throw; // Re-lanzar para que el caller sepa que falló la eliminación
     }
-
-    //eliminar
-    raiz = eliminarNodoEficiente(raiz, titulo, isbn);
-
 }
 
 NodoAVL* ArbolAVL::eliminarNodoEficiente(NodoAVL* nodo, const std::string& titulo, const std::string& isbn) {
     if (!nodo) return nullptr;
 
+    // Validar que el nodo tenga libro válido
+    if (!nodo->libro) {
+        throw std::runtime_error("Nodo AVL con libro nulo encontrado durante eliminación");
+    }
     // Búsqueda binaria normal por título
     int cmp = titulo.compare(nodo->libro->getTitulo());
 
@@ -47,6 +54,11 @@ NodoAVL* ArbolAVL::eliminarNodoEficiente(NodoAVL* nodo, const std::string& titul
             }
             else {
                 NodoAVL* sucesor = nodoMinimo(nodo->derecho);
+                // Validar que el sucesor sea válido
+                if (!sucesor || !sucesor->libro) {
+                    throw std::runtime_error("Sucesor inválido encontrado durante eliminación");
+                }
+
                 delete nodo->libro;
                 nodo->libro = new Libro(*sucesor->libro);
                 nodo->derecho = eliminarNodoEficiente(nodo->derecho,
@@ -55,7 +67,6 @@ NodoAVL* ArbolAVL::eliminarNodoEficiente(NodoAVL* nodo, const std::string& titul
         }
         else {
             // Mismo título pero diferente ISBN, seguir buscando
-            // (esto maneja libros con mismo título pero diferente ISBN)
             int cmpISBN = isbn.compare(nodo->libro->getIsbn());
             if (cmpISBN < 0) {
                 nodo->izquierdo = eliminarNodoEficiente(nodo->izquierdo, titulo, isbn);
@@ -65,13 +76,30 @@ NodoAVL* ArbolAVL::eliminarNodoEficiente(NodoAVL* nodo, const std::string& titul
         }
     }
 
-    nodo->altura = 1 + std::max(altura(nodo->izquierdo), altura(nodo->derecho));
-    return balancear(nodo);
-}
-NodoAVL* ArbolAVL::nodoMinimo(NodoAVL* nodo) const {
-    NodoAVL* actual = nodo;
-    while (actual && actual->izquierdo != nullptr) {
-        actual = actual->izquierdo;
+    // Actualizar altura solo si el nodo no fue eliminado
+    if (nodo) {
+        nodo->altura = 1 + std::max(altura(nodo->izquierdo), altura(nodo->derecho));
+        return balancear(nodo);
     }
-    return actual;
+
+    return nullptr;
+}
+
+NodoAVL* ArbolAVL::nodoMinimo(NodoAVL* nodo) const {
+    try {
+        if (!nodo) return nullptr;
+
+        NodoAVL* actual = nodo;
+        while (actual && actual->izquierdo != nullptr) {
+            // Validar integridad de la estructura
+            if (!actual->izquierdo) {
+                throw std::runtime_error("Estructura del árbol corrupta en nodoMinimo");
+            }
+            actual = actual->izquierdo;
+        }
+        return actual;
+    } catch (const std::exception& e) {
+        std::cerr << "Error en ArbolAVL::nodoMinimo: " << e.what() << std::endl;
+        return nullptr;
+    }
 }

@@ -1,9 +1,17 @@
+#include <iostream>
+#include <stdexcept>
 #include "ArbolAVL.h"
 #include "ListaEncontrados.h"
 
 //buscar el primer libro con el titulo para devolver solo 1 resultado
 Libro* ArbolAVL::buscarPorTitulo(const std::string& titulo) {
-    return buscarPorTituloRecursivo(raiz, titulo);
+    try {
+        if (titulo.empty()) throw std::invalid_argument("Título de búsqueda vacío");
+        return buscarPorTituloRecursivo(raiz, titulo);
+    } catch (const std::exception& e) {
+        std::cerr << "Error en ArbolAVL::buscarPorTitulo: " << e.what() << std::endl;
+        return nullptr;
+    }
 }
 
 Libro* ArbolAVL::buscarPorTituloRecursivo(NodoAVL* nodo, const std::string& titulo) {
@@ -21,13 +29,19 @@ Libro* ArbolAVL::buscarPorTituloRecursivo(NodoAVL* nodo, const std::string& titu
 }
 
 ListaEncontados* ArbolAVL::buscarTodosPorTitulo(const std::string& titulo) {
-    ListaEncontados* lista = new ListaEncontados();
-    buscarTodosPorTituloRecursivo(raiz, titulo, lista);
-    return lista;
+    try {
+        if (titulo.empty()) throw std::invalid_argument("Título de búsqueda vacío");
+        ListaEncontados* lista = new ListaEncontados();
+        buscarTodosPorTituloRecursivo(raiz, titulo, lista);
+        return lista;
+    } catch (const std::exception& e) {
+        std::cerr << "Error en ArbolAVL::buscarTodosPorTitulo: " << e.what() << std::endl;
+        return new ListaEncontados(); // Devolver lista vacía en caso de error
+    }
 }
 
 void ArbolAVL::buscarTodosPorTituloRecursivo(NodoAVL* nodo, const std::string& titulo, ListaEncontados* lista) {
-    if (!nodo) return ;
+    if (!nodo) return;
 
     //recorrido inorden para encontrar todos
     buscarTodosPorTituloRecursivo(nodo->izquierdo, titulo, lista);
@@ -59,5 +73,11 @@ NodoAVL* ArbolAVL::buscarNodo(NodoAVL* nodo, const std::string& titulo, const st
 }
 
 NodoAVL *ArbolAVL::buscar(const std::string &titulo, const std::string &isbn) {
-    return buscarNodo(raiz, titulo, isbn);
+    try {
+        if (titulo.empty()) throw std::invalid_argument("Título de búsqueda vacío");
+        return buscarNodo(raiz, titulo, isbn);
+    } catch (const std::exception& e) {
+        std::cerr << "Error en ArbolAVL::buscar: " << e.what() << std::endl;
+        return nullptr;
+    }
 }

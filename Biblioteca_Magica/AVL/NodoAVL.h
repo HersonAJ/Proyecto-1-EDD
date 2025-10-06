@@ -2,7 +2,6 @@
 #define BIBLIOTECA_MAGICA_NODOAVL_H
 
 #include "../Modelos/Libro.h"
-#include "../include/ListaRepetidos.h"
 
 class NodoAVL {
 public:

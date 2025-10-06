@@ -86,12 +86,13 @@ int Libro::compararPorFecha(const Libro& otro) const {
 
 int Libro::getFechaInt() const {
     try {
-        std::cout << "Convirtiendo fecha: '" << fecha << "' -> ";
         int resultado = fecha.empty() ? 0 : std::stoi(fecha);
-        std::cout << resultado << std::endl;
         return resultado;
     } catch (const std::invalid_argument&) {
-        std::cout << "ERROR convirtiendo fecha: '" << fecha << "'" << std::endl;
+        std::cerr << "ERROR convirtiendo fecha: '" << fecha << "'" << std::endl;
+        return 0;
+    } catch (const std::exception& e) {
+        std::cerr << "Error en Libro::getFechaInt: " << e.what() << std::endl;
         return 0;
     }
 }
