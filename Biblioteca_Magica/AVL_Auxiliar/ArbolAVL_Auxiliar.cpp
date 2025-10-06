@@ -143,9 +143,7 @@ NodoIndiceISBN* IndiceISBN::eliminarNodo(NodoIndiceISBN* nodo, const std::string
 }
 
 void IndiceISBN::eliminar(const std::string& isbn) {
-    std::cout << "[DEBUG] IndiceISBN::eliminar('" << isbn << "') - raiz antes: " << raiz << std::endl;
     raiz = eliminarNodo(raiz, isbn);
-    std::cout << "[DEBUG] IndiceISBN::eliminar('" << isbn << "') - raiz después: " << raiz << std::endl;
 }
 
 // Búsqueda
@@ -164,6 +162,5 @@ Libro* IndiceISBN::buscar(const std::string& isbn) const {
 
 bool IndiceISBN::estaVacio() const {
     bool vacio = (raiz == nullptr);
-    std::cout << "[DEBUG] IndiceISBN::estaVacio() = " << vacio << std::endl;
     return vacio;
 }

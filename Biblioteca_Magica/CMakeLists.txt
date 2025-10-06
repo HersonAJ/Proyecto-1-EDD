@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 4.0)
+cmake_minimum_required(VERSION 3.16)#volver a 4 si la compilacion falla
 project(Biblioteca_Magica)
 
 set(CMAKE_CXX_STANDARD 17)
